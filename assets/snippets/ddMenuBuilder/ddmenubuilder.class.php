@@ -42,6 +42,8 @@ class ddMenuBuilder {
 			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
+				$children = array();
+				
 				//Если вдруг меню у документа не задано, выставим заголовок вместо него
 				if (trim($doc['menutitle']) == '') $doc['menutitle'] = $doc['pagetitle'];
 				
@@ -61,7 +63,7 @@ class ddMenuBuilder {
 				if ($doc['id'] == self::$id) $result['act'] = true;
 				
 				//Если есть дочерние, значит надо использовать какой-то родительский шаблон
-				if ($doc['wrapper']){
+				if (!empty($doc['wrapper'])){
 					//Если опубликован, значит надо использовать какой-то опубликованный шаблон
 					if ($doc['published']){
 						//Если текущий пункт является активным
