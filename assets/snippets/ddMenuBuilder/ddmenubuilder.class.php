@@ -98,6 +98,8 @@ class ddMenuBuilder {
 	public static function generate($startId, $depth){
 		global $modx;
 		
+		$result = array();
+		
 // 		$limit = ($depth == self::$depth) ? "LIMIT {self::$lim}" : '';
 		
 		//Получаем все пункты одного уровня
@@ -112,12 +114,10 @@ class ddMenuBuilder {
 		
 		//Если что-то есть
 		if ($modx->db->getRecordCount($dbRes) > 0){
-			$result = array(
-				//Считаем, что активных по дефолту нет
-				'act' => false,
-				//Строка
-				'str' => ''
-			);
+			//Считаем, что активных по дефолту нет
+			$result['act'] = false;
+			//Строка
+			$result['str'] = '';
 			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
@@ -156,8 +156,6 @@ class ddMenuBuilder {
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
 				if ($doc['id'] == self::$id || $children['act']){$result['act'] = true;}
 			}
-		}else{
-			$result = false;
 		}
 		
 		return $result;
