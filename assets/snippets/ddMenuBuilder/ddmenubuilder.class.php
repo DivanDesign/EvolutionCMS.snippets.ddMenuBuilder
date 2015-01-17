@@ -41,13 +41,17 @@ class ddMenuBuilder {
 		if ($modx->db->getRecordCount($dbRes) > 0){
 			$result = array(
 				//Считаем, что активных по дефолту нет
-				'act' => false
+				'act' => false,
+				//Строка
+				'str' => ''
 			);
 			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
 				//Дети
 				$children = array();
+				//Шаблон для вывода текущего пункта
+				$tpl = '';
 				
 				//Если вдруг меню у документа не задано, выставим заголовок вместо него
 				if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
@@ -123,10 +127,13 @@ class ddMenuBuilder {
 				//Если один из детей (не важно отображаются они или нет, т.е., не зависимо от глубины) активен
 				if ($children['act']){$result['act'] = true;}
 				
-				//Подготовим к парсингу
-				$doc['wrapper'] = $doc['wrapper']['str'];
-				//Парсим
-				$result['str'] .= ddTools::parseText($tpl, $doc);
+				//Если шаблон определён (документ надо выводить)
+				if ($tpl != ''){
+					//Подготовим к парсингу
+					$doc['wrapper'] = $doc['wrapper']['str'];
+					//Парсим
+					$result['str'] .= ddTools::parseText($tpl, $doc);
+				}
 			}
 		}else{
 			$result = false;
