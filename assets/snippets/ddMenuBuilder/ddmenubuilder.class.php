@@ -104,17 +104,13 @@ class ddMenuBuilder {
 			'outputString' => ''
 		);
 		
-// 		$limit = ($depth == self::$depth) ? "LIMIT {self::$lim}" : '';
-		
 		//Получаем все пункты одного уровня
-		$sql = '
+		$dbRes = $modx->db->query('
 			SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
 			FROM '.self::$table.'
 			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.self::$where.'
 			ORDER BY `menuindex` '.self::$sortDir.'
-		';
-		
-		$dbRes = $modx->db->query($sql);
+		');
 		
 		//Если что-то есть
 		if ($modx->db->getRecordCount($dbRes) > 0){
