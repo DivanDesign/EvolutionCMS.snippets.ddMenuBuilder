@@ -26,7 +26,7 @@
  * @param $tplUnpubParentRow {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован. Default: $tplParentRow.
  * @param $tplUnpubParentActive {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tplParentActive.
  * 
- * @param $tplWrap {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+wrapper+]. Default: '<ul>[+wrapper+]</ul>'.
+ * @param $tplWrap {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.biz
@@ -57,11 +57,11 @@ ddMenuBuilder::$templates['row'] = $tplRow ? $tplRow : '<li><a href="[~[+id+]~]"
 ddMenuBuilder::$templates['here'] = $tplHere ? $tplHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
 ddMenuBuilder::$templates['active'] = $tplActive ? $tplActive : ddMenuBuilder::$templates['here'];
 
-ddMenuBuilder::$templates['parentRow'] = $tplParentRow ? $tplParentRow : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+wrapper+]</ul></li>';
+ddMenuBuilder::$templates['parentRow'] = $tplParentRow ? $tplParentRow : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 //Если не задан шаблон текущего родителя
 if (!$tplParentHere){
 	//Если шаблон родительского пункта был задан, берём его, в противном случае — по умолчанию
-	ddMenuBuilder::$templates['parentHere'] = $tplParentRow ? ddMenuBuilder::$templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+wrapper+]</ul></li>';
+	ddMenuBuilder::$templates['parentHere'] = $tplParentRow ? ddMenuBuilder::$templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 }else{
 	ddMenuBuilder::$templates['parentHere'] = $tplParentHere;
 }
@@ -70,7 +70,7 @@ ddMenuBuilder::$templates['parentActive'] = $tplParentActive ? $tplParentActive 
 ddMenuBuilder::$templates['unpubParentRow'] = $tplUnpubParentRow ? $tplUnpubParentRow : ddMenuBuilder::$templates['parentRow'];
 ddMenuBuilder::$templates['unpubParentActive'] = $tplUnpubParentActive ? $tplUnpubParentActive : ddMenuBuilder::$templates['parentActive'];
 
-$tplWrap = (isset($tplWrap)) ? $modx->getChunk($tplWrap) : '<ul>[+wrapper+]</ul>';
+$tplWrap = (isset($tplWrap)) ? $modx->getChunk($tplWrap) : '<ul>[+children+]</ul>';
 
 //Получаем id текущего документа
 ddMenuBuilder::$id = $modx->documentIdentifier;
@@ -94,5 +94,5 @@ if (!is_numeric($showInMenuOnly) || $showInMenuOnly == 1){
 //Генерируем меню
 $result = ddMenuBuilder::generate($startId, $depth);
 
-return ddTools::parseText($tplWrap, array('wrapper' => $result['outputString']), '[+', '+]');
+return ddTools::parseText($tplWrap, array('children' => $result['outputString']), '[+', '+]');
 ?>

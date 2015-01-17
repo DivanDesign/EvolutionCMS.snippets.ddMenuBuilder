@@ -24,14 +24,14 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0 (2015-01-17)
+	 * @version 1.0.1 (2015-01-17)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
 	 * @param $params['doc'] {array: associative} - Массив данных документа. @required
 	 * @param $params['doc']['id'] {integer} - ID документа. @required
 	 * @param $params['doc']['published'] {0; 1} - Признак публикации документа. @required
-	 * @param $params['doc']['wrapper'] {array: associative} - Массив для вывода дочерних документов (используется только для проверки на «!empty»). @required
+	 * @param $params['doc']['children'] {array: associative} - Массив для вывода дочерних документов (используется только для проверки на «!empty»). @required
 	 * @param $params['hasActiveChildren'] - Есть ли у документа активные дочерние документы. @required
 	 * 
 	 * @return {string} - Шаблон для вывода.
@@ -40,7 +40,7 @@ class ddMenuBuilder {
 		$result = '';
 		
 		//Если есть дочерние, значит надо использовать какой-то родительский шаблон
-		if (!empty($params['doc']['wrapper'])){
+		if (!empty($params['doc']['children'])){
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
 			if ($params['doc']['published']){
 				//Если текущий пункт является активным
@@ -133,7 +133,7 @@ class ddMenuBuilder {
 				//Если надо идти глубже
 				if ($depth > 1){
 					//Получаем дочерние пункты
-					$doc['wrapper'] = $children;
+					$doc['children'] = $children;
 				}
 				
 				//Получаем правильный шаблон для вывода текущего пункта
@@ -148,7 +148,7 @@ class ddMenuBuilder {
 					if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
 					
 					//Подготовим к парсингу
-					$doc['wrapper'] = $doc['wrapper']['outputString'];
+					$doc['children'] = $doc['children']['outputString'];
 					//Парсим
 					$result['outputString'] .= ddTools::parseText($tpl, $doc);
 				}
