@@ -24,27 +24,26 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.1 (2015-01-17)
+	 * @version 1.0.2 (2015-01-17)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params['doc'] {array: associative} - Массив данных документа. @required
-	 * @param $params['doc']['id'] {integer} - ID документа. @required
-	 * @param $params['doc']['published'] {0; 1} - Признак публикации документа. @required
-	 * @param $params['doc']['children'] {array: associative} - Массив для вывода дочерних документов (используется только для проверки на «!empty»). @required
-	 * @param $params['hasActiveChildren'] - Есть ли у документа активные дочерние документы. @required
+	 * @param $params['docId'] {integer} - ID документа. @required
+	 * @param $params['docPublished'] {0; 1} - Признак публикации документа. @required
+	 * @param $params['hasActiveChildren'] {boolean} - Есть ли у документа активные дочерние документы. @required
+	 * @param $params['hasChildrenOutput'] {boolean} - Будут ли у документа выводиться дочерние. @required
 	 * 
 	 * @return {string} - Шаблон для вывода.
 	 */
 	public static function getOutputTemplate($params){
 		$result = '';
 		
-		//Если есть дочерние, значит надо использовать какой-то родительский шаблон
-		if (!empty($params['doc']['children'])){
+		//Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
+		if ($params['hasChildrenOutput']){
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
-			if ($params['doc']['published']){
+			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['doc']['id'] == self::$id){
+				if ($params['docId'] == self::$id){
 					//Шаблон активного родительского пункта меню
 					$result = self::$templates['parentHere'];
 				//Если не не активный
@@ -76,9 +75,9 @@ class ddMenuBuilder {
 		//Если дочерних нет (отображаемых дочерних)
 		}else{
 			//Если опубликован
-			if ($params['doc']['published']){
+			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['doc']['id'] == self::$id){
+				if ($params['docId'] == self::$id){
 					//Шаблон активного пункта
 					$result = self::$templates['here'];
 				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
@@ -98,7 +97,12 @@ class ddMenuBuilder {
 	public static function generate($startId, $depth){
 		global $modx;
 		
-		$result = array();
+		$result = array(
+			//Считаем, что активных пунктов по дефолту нет
+			'hasActive' => false,
+			//Результирующая строка
+			'outputString' => ''
+		);
 		
 // 		$limit = ($depth == self::$depth) ? "LIMIT {self::$lim}" : '';
 		
@@ -114,32 +118,34 @@ class ddMenuBuilder {
 		
 		//Если что-то есть
 		if ($modx->db->getRecordCount($dbRes) > 0){
-			//Считаем, что активных по дефолту нет
-			$result['hasActive'] = false;
-			//Строка
-			$result['outputString'] = '';
-			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
-				//Дети
-				$children = array();
+				//Пустые дети
+				$children = array(
+					'hasActive' => false,
+					'outputString' => ''
+				);
+				//И для вывода тоже пустые
+				$doc['children'] = $children;
 				
-				//Если это папка (т.е., если есть дочерние)
+				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
-					//Получаем детей
+					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = self::generate($doc['id'], $depth - 1);
-				}
-				
-				//Если надо идти глубже
-				if ($depth > 1){
-					//Получаем дочерние пункты
-					$doc['children'] = $children;
+					
+					//Если надо выводить глубже
+					if ($depth > 1){
+						//Выводим детей
+						$doc['children'] = $children;
+					}
 				}
 				
 				//Получаем правильный шаблон для вывода текущего пункта
 				$tpl = self::getOutputTemplate(array(
-					'doc' => $doc,
-					'hasActiveChildren' => $children['hasActive']
+					'docId' => $doc['id'],
+					'docPublished' => $doc['published'],
+					'hasActiveChildren' => $children['hasActive'],
+					'hasChildrenOutput' => $doc['children']['outputString'] != ''
 				));
 				
 				//Если шаблон определён (документ надо выводить)
