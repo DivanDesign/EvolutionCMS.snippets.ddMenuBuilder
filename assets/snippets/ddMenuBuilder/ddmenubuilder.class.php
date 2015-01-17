@@ -115,9 +115,9 @@ class ddMenuBuilder {
 		//Если что-то есть
 		if ($modx->db->getRecordCount($dbRes) > 0){
 			//Считаем, что активных по дефолту нет
-			$result['act'] = false;
+			$result['hasActive'] = false;
 			//Строка
-			$result['str'] = '';
+			$result['outputString'] = '';
 			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
@@ -139,7 +139,7 @@ class ddMenuBuilder {
 				//Получаем правильный шаблон для вывода текущего пункта
 				$tpl = self::getOutputTemplate(array(
 					'doc' => $doc,
-					'hasActiveChildren' => $children['act']
+					'hasActiveChildren' => $children['hasActive']
 				));
 				
 				//Если шаблон определён (документ надо выводить)
@@ -148,13 +148,13 @@ class ddMenuBuilder {
 					if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
 					
 					//Подготовим к парсингу
-					$doc['wrapper'] = $doc['wrapper']['str'];
+					$doc['wrapper'] = $doc['wrapper']['outputString'];
 					//Парсим
-					$result['str'] .= ddTools::parseText($tpl, $doc);
+					$result['outputString'] .= ddTools::parseText($tpl, $doc);
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if ($doc['id'] == self::$id || $children['act']){$result['act'] = true;}
+				if ($doc['id'] == self::$id || $children['hasActive']){$result['hasActive'] = true;}
 			}
 		}
 		

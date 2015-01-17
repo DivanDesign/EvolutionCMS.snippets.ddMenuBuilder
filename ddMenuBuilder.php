@@ -94,5 +94,5 @@ if (!is_numeric($showInMenuOnly) || $showInMenuOnly == 1){
 //Генерируем меню
 $result = ddMenuBuilder::generate($startId, $depth);
 
-return ddTools::parseText($tplWrap, array('wrapper' => $result['str']), '[+', '+]');
+return ddTools::parseText($tplWrap, array('wrapper' => $result['outputString']), '[+', '+]');
 ?>
