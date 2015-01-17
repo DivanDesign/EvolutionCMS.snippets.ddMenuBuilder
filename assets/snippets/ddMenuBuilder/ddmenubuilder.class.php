@@ -22,6 +22,79 @@ class ddMenuBuilder {
 	public static $where;
 // 	public $lim;
 	
+	/**
+	 * getOutputTemplate
+	 * @version 1.0 (2015-01-17)
+	 * 
+	 * @desc Подбирает необходимый шаблон для вывода документа.
+	 * 
+	 * @param $params['doc'] {array: associative} - Массив данных документа. @required
+	 * @param $params['doc']['id'] {integer} - ID документа. @required
+	 * @param $params['doc']['published'] {0; 1} - Признак публикации документа. @required
+	 * @param $params['doc']['wrapper'] {array: associative} - Массив для вывода дочерних документов (используется только для проверки на «!empty»). @required
+	 * @param $params['hasActiveChildren'] - Есть ли у документа активные дочерние документы. @required
+	 * 
+	 * @return {string} - Шаблон для вывода.
+	 */
+	public static function getOutputTemplate($params){
+		$result = '';
+		
+		//Если есть дочерние, значит надо использовать какой-то родительский шаблон
+		if (!empty($params['doc']['wrapper'])){
+			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
+			if ($params['doc']['published']){
+				//Если текущий пункт является активным
+				if ($params['doc']['id'] == self::$id){
+					//Шаблон активного родительского пункта меню
+					$result = self::$templates['parentHere'];
+				//Если не не активный
+				}else{
+					//Если один из дочерних был активным
+					if ($params['hasActiveChildren']){
+						//Сообщаем, что что-то активное есть
+						//Шаблон родительского пункта меню, когда активный один из дочерних
+						$result = self::$templates['parentActive'];
+					//Если активных дочерних не было
+					}else{
+						//Шаблон родительского пункта меню
+						$result = self::$templates['parentRow'];
+					}
+				}
+			//Если не опубликован
+			}else{
+				//Если один из дочерних был активным
+				if ($params['hasActiveChildren']){
+					//Сообщаем, что что-то активное есть
+					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
+					$result = self::$templates['unpubParentActive'];
+				//Если активных дочерних не было
+				}else{
+					//Шаблон неопубликованного родительского пункта меню
+					$result = self::$templates['unpubParentRow'];
+				}
+			}
+		//Если дочерних нет (отображаемых дочерних)
+		}else{
+			//Если опубликован
+			if ($params['doc']['published']){
+				//Если текущий пункт является активным
+				if ($params['doc']['id'] == self::$id){
+					//Шаблон активного пункта
+					$result = self::$templates['here'];
+				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
+				}else if($params['hasActiveChildren']){
+					$result = self::$templates['active'];
+				//Если не не активный
+				}else{
+					//Шаблон пункта меню
+					$result = self::$templates['row'];
+				}
+			}
+		}
+		
+		return $result;
+	}
+	
 	public static function generate($startId, $depth){
 		global $modx;
 		
@@ -50,8 +123,6 @@ class ddMenuBuilder {
 			while ($doc = $modx->db->getRow($dbRes)){
 				//Дети
 				$children = array();
-				//Шаблон для вывода текущего пункта
-				$tpl = '';
 				
 				//Если вдруг меню у документа не задано, выставим заголовок вместо него
 				if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
@@ -71,58 +142,11 @@ class ddMenuBuilder {
 				//Если текущий пункт является активным
 				if ($doc['id'] == self::$id){$result['act'] = true;}
 				
-				//Если есть дочерние, значит надо использовать какой-то родительский шаблон
-				if (!empty($doc['wrapper'])){
-					//Если опубликован, значит надо использовать какой-то опубликованный шаблон
-					if ($doc['published']){
-						//Если текущий пункт является активным
-						if ($doc['id'] == self::$id){
-							//Шаблон активного родительского пункта меню
-							$tpl = self::$templates['parentHere'];
-						//Если не не активный
-						}else{
-							//Если один из дочерних был активным
-							if ($children['act']){
-								//Сообщаем, что что-то активное есть
-								//Шаблон родительского пункта меню, когда активный один из дочерних
-								$tpl = self::$templates['parentActive'];
-							//Если активных дочерних не было
-							}else{
-								//Шаблон родительского пункта меню
-	 							$tpl = self::$templates['parentRow'];
-							}
-						}
-					//Если не опубликован
-					}else{
-						//Если один из дочерних был активным
-						if ($children['act']){
-							//Сообщаем, что что-то активное есть
-							//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
-							$tpl = self::$templates['unpubParentActive'];
-						//Если активных дочерних не было
-						}else{
-							//Шаблон неопубликованного родительского пункта меню
- 							$tpl = self::$templates['unpubParentRow'];
-						}
-					}
-				//Если дочерних нет (отображаемых дочерних)
-				}else{
-					//Если опубликован
-					if ($doc['published']){
-						//Если текущий пункт является активным
-						if ($doc['id'] == self::$id){
-							//Шаблон активного пункта
-							$tpl = self::$templates['here'];
-						//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-						}else if($children['act']){
-							$tpl = self::$templates['active'];
-						//Если не не активный
-						}else{
-							//Шаблон пункта меню
-							$tpl = self::$templates['row'];
-						}
-					}
-				}
+				//Получаем правильный шаблон для вывода текущего пункта
+				$tpl = self::getOutputTemplate(array(
+					'doc' => $doc,
+					'hasActiveChildren' => $children['act']
+				));
 				
 				//Если один из детей (не важно отображаются они или нет, т.е., не зависимо от глубины) активен
 				if ($children['act']){$result['act'] = true;}
