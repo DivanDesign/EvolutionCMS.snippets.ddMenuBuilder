@@ -28,24 +28,29 @@ class ddMenuBuilder {
 // 		$limit = ($depth == self::$depth) ? "LIMIT {self::$lim}" : '';
 		
 		//Получаем все пункты одного уровня
-		$sql = 'SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
-				FROM '.self::$table.'
-				WHERE `parent` = '.$startId.' AND `deleted` = 0 '.self::$where.'
-				ORDER BY `menuindex` '.self::$sortDir;
+		$sql = '
+			SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
+			FROM '.self::$table.'
+			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.self::$where.'
+			ORDER BY `menuindex` '.self::$sortDir.'
+		';
 		
 		$dbRes = $modx->db->query($sql);
 		
 		//Если что-то есть
 		if ($modx->db->getRecordCount($dbRes) > 0){
-			//Считаем, что активных по дефолту нету
-			$result = array(); $result['act'] = false;
+			$result = array(
+				//Считаем, что активных по дефолту нет
+				'act' => false
+			);
 			
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
+				//Дети
 				$children = array();
 				
 				//Если вдруг меню у документа не задано, выставим заголовок вместо него
-				if (trim($doc['menutitle']) == '') $doc['menutitle'] = $doc['pagetitle'];
+				if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
 				
 				//Если это папка (т.е., если есть дочерние)
 				if ($doc['isfolder']){
@@ -60,7 +65,7 @@ class ddMenuBuilder {
 				}
 				
 				//Если текущий пункт является активным
-				if ($doc['id'] == self::$id) $result['act'] = true;
+				if ($doc['id'] == self::$id){$result['act'] = true;}
 				
 				//Если есть дочерние, значит надо использовать какой-то родительский шаблон
 				if (!empty($doc['wrapper'])){
@@ -114,14 +119,16 @@ class ddMenuBuilder {
 						}
 					}
 				}
+				
 				//Если один из детей (не важно отображаются они или нет, т.е., не зависимо от глубины) активен
-				if ($children['act']) $result['act'] = true;
+				if ($children['act']){$result['act'] = true;}
 				
 				//Подготовим к парсингу
 				$doc['wrapper'] = $doc['wrapper']['str'];
 				//Парсим
 				$result['str'] .= ddTools::parseText($tpl, $doc);
 			}
+			
 			return $result;
 		}else{
 			return false;
