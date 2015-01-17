@@ -124,9 +124,6 @@ class ddMenuBuilder {
 				//Дети
 				$children = array();
 				
-				//Если вдруг меню у документа не задано, выставим заголовок вместо него
-				if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
-				
 				//Если это папка (т.е., если есть дочерние)
 				if ($doc['isfolder']){
 					//Получаем детей
@@ -139,25 +136,25 @@ class ddMenuBuilder {
 					$doc['wrapper'] = $children;
 				}
 				
-				//Если текущий пункт является активным
-				if ($doc['id'] == self::$id){$result['act'] = true;}
-				
 				//Получаем правильный шаблон для вывода текущего пункта
 				$tpl = self::getOutputTemplate(array(
 					'doc' => $doc,
 					'hasActiveChildren' => $children['act']
 				));
 				
-				//Если один из детей (не важно отображаются они или нет, т.е., не зависимо от глубины) активен
-				if ($children['act']){$result['act'] = true;}
-				
 				//Если шаблон определён (документ надо выводить)
 				if ($tpl != ''){
+					//Если вдруг меню у документа не задано, выставим заголовок вместо него
+					if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
+					
 					//Подготовим к парсингу
 					$doc['wrapper'] = $doc['wrapper']['str'];
 					//Парсим
 					$result['str'] .= ddTools::parseText($tpl, $doc);
 				}
+				
+				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
+				if ($doc['id'] == self::$id || $children['act']){$result['act'] = true;}
 			}
 		}else{
 			$result = false;
