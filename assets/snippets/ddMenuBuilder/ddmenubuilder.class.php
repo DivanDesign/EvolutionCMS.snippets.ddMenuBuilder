@@ -128,11 +128,11 @@ class ddMenuBuilder {
 				//Парсим
 				$result['str'] .= ddTools::parseText($tpl, $doc);
 			}
-			
-			return $result;
 		}else{
-			return false;
+			$result = false;
 		}
+		
+		return $result;
 	}
 }
 }
