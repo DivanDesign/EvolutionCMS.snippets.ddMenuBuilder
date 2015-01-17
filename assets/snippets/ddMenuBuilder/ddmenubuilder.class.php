@@ -140,23 +140,26 @@ class ddMenuBuilder {
 					}
 				}
 				
-				//Получаем правильный шаблон для вывода текущего пункта
-				$tpl = self::getOutputTemplate(array(
-					'docId' => $doc['id'],
-					'docPublished' => $doc['published'],
-					'hasActiveChildren' => $children['hasActive'],
-					'hasChildrenOutput' => $doc['children']['outputString'] != ''
-				));
-				
-				//Если шаблон определён (документ надо выводить)
-				if ($tpl != ''){
-					//Если вдруг меню у документа не задано, выставим заголовок вместо него
-					if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
+				//Если вывод вообще нужен (если «$depth» <= 0, значит этот вызов был только для выяснения активности)
+				if ($depth > 0){
+					//Получаем правильный шаблон для вывода текущего пункта
+					$tpl = self::getOutputTemplate(array(
+						'docId' => $doc['id'],
+						'docPublished' => $doc['published'],
+						'hasActiveChildren' => $children['hasActive'],
+						'hasChildrenOutput' => $doc['children']['outputString'] != ''
+					));
 					
-					//Подготовим к парсингу
-					$doc['children'] = $doc['children']['outputString'];
-					//Парсим
-					$result['outputString'] .= ddTools::parseText($tpl, $doc);
+					//Если шаблон определён (документ надо выводить)
+					if ($tpl != ''){
+						//Если вдруг меню у документа не задано, выставим заголовок вместо него
+						if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
+						
+						//Подготовим к парсингу
+						$doc['children'] = $doc['children']['outputString'];
+						//Парсим
+						$result['outputString'] .= ddTools::parseText($tpl, $doc);
+					}
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
