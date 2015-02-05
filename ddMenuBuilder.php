@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMenuBuilder.php
- * @version 1.7 (2012-10-17)
+ * @version 1.8 (2015-02-05)
  * 
  * @desc Строит меню. Идея сниппета в совмещении преимуществ Wayfinder и Ditto при значительном упрощении кода.
  * 
@@ -15,12 +15,13 @@
  * @param $showInMenuOnly {0; 1} - Брать ли только те документы, что надо показывать в меню. Default: 1.
  * 
  * Шаблоны:
- * @param $tplRow {string: chunkName} - Шаблон пункта меню. @required
- * @param $tplHere {string: chunkName} - Шаблон активного пункта меню. @required
+ * Доступные плэйсхолдеры во всех шаблонах: [+id+], [+menutitle+], [+pagetitle+], [+published+], [+isfolder+].
+ * @param $tplRow {string: chunkName} - Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tplHere {string: chunkName} - Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
  * @param $tplActive {string: chunkName} - Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tplHere.
  * 
- * @param $tplParentRow {string: chunkName} - Шаблон пункта меню родителя. Default: $tplRow.
- * @param $tplParentHere {string: chunkName} - Шаблон активного пункта меню родителя. Default: $tplParentRow.
+ * @param $tplParentRow {string: chunkName} - Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
+ * @param $tplParentHere {string: chunkName} - Шаблон активного пункта меню родителя. Default: $tplParentRow || '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
  * @param $tplParentActive {string: chunkName} - Шаблон пункта меню родителя, когда дочерний является here. Default: $tplParentHere.
  * 
  * @param $tplUnpubParentRow {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован. Default: $tplParentRow.
@@ -28,7 +29,7 @@
  * 
  * @param $tplWrap {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
- * @copyright 2012, DivanDesign
+ * @copyright 2015, DivanDesign
  * http://www.DivanDesign.biz
  */
 
@@ -37,7 +38,7 @@ require_once $modx->config['base_path'].'assets/snippets/ddMenuBuilder/ddmenubui
 
 //Откуда брать
 $startId = is_numeric($startId) ? $startId : 0;
-//По умолчанию на 3 уровня
+//По умолчанию на 1 уровня
 $depth = (is_numeric($depth)) ? $depth : 1;
 
 //Задаём шаблоны

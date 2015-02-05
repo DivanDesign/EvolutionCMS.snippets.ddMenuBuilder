@@ -1,13 +1,13 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 1.1 (2012-10-17)
+ * @version 1.2 (2015-02-05)
  * 
  * @uses modx 1.0.6 (Evo)
- * @uses modx ddTools lib 0.3.
+ * @uses modx ddTools lib 0.13.
  * 
- * @copyright Copyright 2012, DivanDesign
- * http://www.DivanDesign.ru
+ * @copyright 2015, DivanDesign
+ * http://www.DivanDesign.biz
  */
 
 if (!class_exists('ddMenuBuilder')){
@@ -20,7 +20,6 @@ class ddMenuBuilder {
 	public static $templates;
 	public static $sortDir;
 	public static $where;
-// 	public $lim;
 	
 	/**
 	 * getOutputTemplate
