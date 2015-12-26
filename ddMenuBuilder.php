@@ -5,7 +5,7 @@
  * 
  * @desc Строит меню. Идея сниппета в совмещении преимуществ Wayfinder и Ditto при значительном упрощении кода.
  * 
- * @uses modx ddTools lib 0.3.
+ * @uses The library modx.ddTools 0.15.
  * 
  * Основные параметры:
  * @param $startId {integer} - Откуда брать. Default: 0.
@@ -16,25 +16,38 @@
  * 
  * Шаблоны:
  * Доступные плэйсхолдеры во всех шаблонах: [+id+], [+menutitle+], [+pagetitle+], [+published+], [+isfolder+].
- * @param $tplRow {string: chunkName} - Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tplHere {string: chunkName} - Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tplActive {string: chunkName} - Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tplHere.
+ * @param $tpls_item {string: chunkName} - Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemHere {string: chunkName} - Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemActive {string: chunkName} - Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tpls_itemHere.
  * 
- * @param $tplParentRow {string: chunkName} - Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
- * @param $tplParentHere {string: chunkName} - Шаблон активного пункта меню родителя. Default: $tplParentRow || '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
- * @param $tplParentActive {string: chunkName} - Шаблон пункта меню родителя, когда дочерний является here. Default: $tplParentHere.
+ * @param $tpls_itemParent {string: chunkName} - Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
+ * @param $tpls_itemParentHere {string: chunkName} - Шаблон активного пункта меню родителя. Default: $tpls_itemParent || '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+ * @param $tpls_itemParentActive {string: chunkName} - Шаблон пункта меню родителя, когда дочерний является here. Default: $tpls_itemParentHere.
  * 
- * @param $tplUnpubParentRow {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован. Default: $tplParentRow.
- * @param $tplUnpubParentActive {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tplParentActive.
+ * @param $tpls_itemParentUnpub {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован. Default: $tpls_itemParent.
+ * @param $tpls_itemParentUnpubActive {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tpls_itemParentActive.
  * 
- * @param $tplWrap {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
+ * @param $tpls_outer {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
  * @copyright 2015, DivanDesign
  * http://www.DivanDesign.biz
  */
 
-//Подключаем класс
+//Подключаем класс (ddTools подключится там)
 require_once $modx->config['base_path'].'assets/snippets/ddMenuBuilder/ddmenubuilder.class.php';
+
+//Для обратной совместимости
+extract(ddTools::verifyRenamedParams($params, array(
+	'tpls_item' => 'tplRow',
+	'tpls_itemHere' => 'tplHere',
+	'tpls_itemActive' => 'tplActive',
+	'tpls_itemParent' => 'tplParentRow',
+	'tpls_itemParentHere' => 'tplParentHere',
+	'tpls_itemParentActive' => 'tplParentActive',
+	'tpls_itemParentUnpub' => 'tplUnpubParentRow',
+	'tpls_itemParentUnpubActive' => 'tplUnpubParentActive',
+	'tpls_outer' => 'tplWrap'
+)));
 
 //Откуда брать
 $startId = is_numeric($startId) ? $startId : 0;
@@ -42,36 +55,36 @@ $startId = is_numeric($startId) ? $startId : 0;
 $depth = (is_numeric($depth)) ? $depth : 1;
 
 //Задаём шаблоны
-$tplRow = isset($tplRow) ? $modx->getChunk($tplRow) : false;
-$tplHere = isset($tplHere) ? $modx->getChunk($tplHere) : false;
-$tplActive = isset($tplActive) ? $modx->getChunk($tplActive) : false;
+$tpls_item = isset($tpls_item) ? $modx->getChunk($tpls_item) : false;
+$tpls_itemHere = isset($tpls_itemHere) ? $modx->getChunk($tpls_itemHere) : false;
+$tpls_itemActive = isset($tpls_itemActive) ? $modx->getChunk($tpls_itemActive) : false;
 
-$tplParentRow = isset($tplParentRow) ? $modx->getChunk($tplParentRow) : false;
-$tplParentHere = isset($tplParentHere) ? $modx->getChunk($tplParentHere) : false;
-$tplParentActive = isset($tplParentActive) ? $modx->getChunk($tplParentActive) : false;
+$tpls_itemParent = isset($tpls_itemParent) ? $modx->getChunk($tpls_itemParent) : false;
+$tpls_itemParentHere = isset($tpls_itemParentHere) ? $modx->getChunk($tpls_itemParentHere) : false;
+$tpls_itemParentActive = isset($tpls_itemParentActive) ? $modx->getChunk($tpls_itemParentActive) : false;
 
-$tplUnpubParentRow = isset($tplUnpubParentRow) ? $modx->getChunk($tplUnpubParentRow) : false;
-$tplUnpubParentActive = isset($tplUnpubParentActive) ? $modx->getChunk($tplUnpubParentActive) : false;
+$tpls_itemParentUnpub = isset($tpls_itemParentUnpub) ? $modx->getChunk($tpls_itemParentUnpub) : false;
+$tpls_itemParentUnpubActive = isset($tpls_itemParentUnpubActive) ? $modx->getChunk($tpls_itemParentUnpubActive) : false;
 
 
-ddMenuBuilder::$templates['row'] = $tplRow ? $tplRow : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-ddMenuBuilder::$templates['here'] = $tplHere ? $tplHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-ddMenuBuilder::$templates['active'] = $tplActive ? $tplActive : ddMenuBuilder::$templates['here'];
+ddMenuBuilder::$templates['row'] = $tpls_item ? $tpls_item : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+ddMenuBuilder::$templates['here'] = $tpls_itemHere ? $tpls_itemHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+ddMenuBuilder::$templates['active'] = $tpls_itemActive ? $tpls_itemActive : ddMenuBuilder::$templates['here'];
 
-ddMenuBuilder::$templates['parentRow'] = $tplParentRow ? $tplParentRow : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+ddMenuBuilder::$templates['parentRow'] = $tpls_itemParent ? $tpls_itemParent : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 //Если не задан шаблон текущего родителя
-if (!$tplParentHere){
+if (!$tpls_itemParentHere){
 	//Если шаблон родительского пункта был задан, берём его, в противном случае — по умолчанию
-	ddMenuBuilder::$templates['parentHere'] = $tplParentRow ? ddMenuBuilder::$templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+	ddMenuBuilder::$templates['parentHere'] = $tpls_itemParent ? ddMenuBuilder::$templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 }else{
-	ddMenuBuilder::$templates['parentHere'] = $tplParentHere;
+	ddMenuBuilder::$templates['parentHere'] = $tpls_itemParentHere;
 }
-ddMenuBuilder::$templates['parentActive'] = $tplParentActive ? $tplParentActive : ddMenuBuilder::$templates['parentHere'];
+ddMenuBuilder::$templates['parentActive'] = $tpls_itemParentActive ? $tpls_itemParentActive : ddMenuBuilder::$templates['parentHere'];
 
-ddMenuBuilder::$templates['unpubParentRow'] = $tplUnpubParentRow ? $tplUnpubParentRow : ddMenuBuilder::$templates['parentRow'];
-ddMenuBuilder::$templates['unpubParentActive'] = $tplUnpubParentActive ? $tplUnpubParentActive : ddMenuBuilder::$templates['parentActive'];
+ddMenuBuilder::$templates['unpubParentRow'] = $tpls_itemParentUnpub ? $tpls_itemParentUnpub : ddMenuBuilder::$templates['parentRow'];
+ddMenuBuilder::$templates['unpubParentActive'] = $tpls_itemParentUnpubActive ? $tpls_itemParentUnpubActive : ddMenuBuilder::$templates['parentActive'];
 
-$tplWrap = (isset($tplWrap)) ? $modx->getChunk($tplWrap) : '<ul>[+children+]</ul>';
+$tpls_outer = (isset($tpls_outer)) ? $modx->getChunk($tpls_outer) : '<ul>[+children+]</ul>';
 
 //Получаем id текущего документа
 ddMenuBuilder::$id = $modx->documentIdentifier;
@@ -95,5 +108,5 @@ if (!is_numeric($showInMenuOnly) || $showInMenuOnly == 1){
 //Генерируем меню
 $result = ddMenuBuilder::generate($startId, $depth);
 
-return ddTools::parseText($tplWrap, array('children' => $result['outputString']), '[+', '+]');
+return ddTools::parseText($tpls_outer, array('children' => $result['outputString']), '[+', '+]');
 ?>
