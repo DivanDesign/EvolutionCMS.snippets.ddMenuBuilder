@@ -31,7 +31,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.0 (2015-12-26)
+	 * @version 1.1 (2015-12-26)
 	 * 
 	 * @param $params {stdClass} — The object of params. @required
 	 * @param $params->templates {array} — Шаблоны элементов меню. @required
@@ -44,7 +44,8 @@ class ddMenuBuilder {
 	 * @param $params->templates['unpubParentRow'] {array} — Шаблон элемента-родителя, если он не опубликован. @required
 	 * @param $params->templates['unpubParentActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. @required
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
-	 * @param $params->where {string} — SQL-where. @required
+	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
+	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->id {integer} — ID текущего документа. Default: $modx->documentIdentifier.
 	 */
 	public function __construct(stdClass $params){
@@ -64,7 +65,15 @@ class ddMenuBuilder {
 			$this->sortDir = strtoupper($params->sortDir);
 		}
 		
-		$this->where = $params->where;
+		//По умолчанию берем только опубликованные документы
+		if (!isset($params->showPublishedOnly) || $params->showPublishedOnly){
+			$this->where .= 'AND `published` = 1 ';
+		}
+		
+		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
+		if (!isset($params->showInMenuOnly) || $params->showInMenuOnly){
+			$this->where .= 'AND `hidemenu` = 0';
+		}
 	}
 	
 	/**

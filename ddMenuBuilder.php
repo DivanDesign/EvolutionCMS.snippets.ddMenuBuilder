@@ -91,18 +91,10 @@ $tpls_outer = (isset($tpls_outer)) ? $modx->getChunk($tpls_outer) : '<ul>[+child
 
 //Направление сортировки
 if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
-//Условие where для sql
-$ddMenuBuilder_params->where = '';
-
-//По умолчанию берем только опубликованные документы
-if (!is_numeric($showPublishedOnly) || $showPublishedOnly == 1){
-	$ddMenuBuilder_params->where .= 'AND `published` = 1 ';
-}
-
-//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
-if (!is_numeric($showInMenuOnly) || $showInMenuOnly == 1){
-	$ddMenuBuilder_params->where .= 'AND `hidemenu` = 0';
-}
+//По умолчанию будут только опубликованные документы
+if (isset($showPublishedOnly)){$ddMenuBuilder_params->showPublishedOnly = $showPublishedOnly;}
+//По умолчанию будут только документы, у которых стоит галочка «показывать в меню»
+if (isset($showInMenuOnly)){$ddMenuBuilder_params->showInMenuOnly = $showInMenuOnly;}
 
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
