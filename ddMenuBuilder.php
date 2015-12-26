@@ -70,22 +70,22 @@ $ddMenuBuilder_params = new stdClass();
 
 $ddMenuBuilder_params->templates = array();
 
-$ddMenuBuilder_params->templates['row'] = $tpls_item ? $tpls_item : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-$ddMenuBuilder_params->templates['here'] = $tpls_itemHere ? $tpls_itemHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-$ddMenuBuilder_params->templates['active'] = $tpls_itemActive ? $tpls_itemActive : $ddMenuBuilder_params->$templates['here'];
+$ddMenuBuilder_params->templates['item'] = $tpls_item ? $tpls_item : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+$ddMenuBuilder_params->templates['itemHere'] = $tpls_itemHere ? $tpls_itemHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+$ddMenuBuilder_params->templates['itemActive'] = $tpls_itemActive ? $tpls_itemActive : $ddMenuBuilder_params->$templates['itemHere'];
 
-$ddMenuBuilder_params->templates['parentRow'] = $tpls_itemParent ? $tpls_itemParent : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+$ddMenuBuilder_params->templates['itemParent'] = $tpls_itemParent ? $tpls_itemParent : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 //Если не задан шаблон текущего родителя
 if (!$tpls_itemParentHere){
 	//Если шаблон родительского пункта был задан, берём его, в противном случае — по умолчанию
-	$ddMenuBuilder_params->templates['parentHere'] = $tpls_itemParent ? $ddMenuBuilder_params->templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+	$ddMenuBuilder_params->templates['itemParentHere'] = $tpls_itemParent ? $ddMenuBuilder_params->templates['itemParent'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 }else{
-	$ddMenuBuilder_params->templates['parentHere'] = $tpls_itemParentHere;
+	$ddMenuBuilder_params->templates['itemParentHere'] = $tpls_itemParentHere;
 }
-$ddMenuBuilder_params->templates['parentActive'] = $tpls_itemParentActive ? $tpls_itemParentActive : $ddMenuBuilder_params->templates['parentHere'];
+$ddMenuBuilder_params->templates['itemParentActive'] = $tpls_itemParentActive ? $tpls_itemParentActive : $ddMenuBuilder_params->templates['itemParentHere'];
 
-$ddMenuBuilder_params->templates['unpubParentRow'] = $tpls_itemParentUnpub ? $tpls_itemParentUnpub : $ddMenuBuilder_params->templates['parentRow'];
-$ddMenuBuilder_params->templates['unpubParentActive'] = $tpls_itemParentUnpubActive ? $tpls_itemParentUnpubActive : $ddMenuBuilder_params->templates['parentActive'];
+$ddMenuBuilder_params->templates['itemParentUnpub'] = $tpls_itemParentUnpub ? $tpls_itemParentUnpub : $ddMenuBuilder_params->templates['itemParent'];
+$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $tpls_itemParentUnpubActive ? $tpls_itemParentUnpubActive : $ddMenuBuilder_params->templates['itemParentActive'];
 
 $tpls_outer = (isset($tpls_outer)) ? $modx->getChunk($tpls_outer) : '<ul>[+children+]</ul>';
 
