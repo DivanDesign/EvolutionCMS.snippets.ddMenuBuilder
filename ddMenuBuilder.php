@@ -66,47 +66,48 @@ $tpls_itemParentActive = isset($tpls_itemParentActive) ? $modx->getChunk($tpls_i
 $tpls_itemParentUnpub = isset($tpls_itemParentUnpub) ? $modx->getChunk($tpls_itemParentUnpub) : false;
 $tpls_itemParentUnpubActive = isset($tpls_itemParentUnpubActive) ? $modx->getChunk($tpls_itemParentUnpubActive) : false;
 
+$ddMenuBuilder_params = new stdClass();
 
-ddMenuBuilder::$templates['row'] = $tpls_item ? $tpls_item : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-ddMenuBuilder::$templates['here'] = $tpls_itemHere ? $tpls_itemHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
-ddMenuBuilder::$templates['active'] = $tpls_itemActive ? $tpls_itemActive : ddMenuBuilder::$templates['here'];
+$ddMenuBuilder_params->templates = array();
 
-ddMenuBuilder::$templates['parentRow'] = $tpls_itemParent ? $tpls_itemParent : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+$ddMenuBuilder_params->templates['row'] = $tpls_item ? $tpls_item : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+$ddMenuBuilder_params->templates['here'] = $tpls_itemHere ? $tpls_itemHere : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>';
+$ddMenuBuilder_params->templates['active'] = $tpls_itemActive ? $tpls_itemActive : $ddMenuBuilder_params->$templates['here'];
+
+$ddMenuBuilder_params->templates['parentRow'] = $tpls_itemParent ? $tpls_itemParent : '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 //Если не задан шаблон текущего родителя
 if (!$tpls_itemParentHere){
 	//Если шаблон родительского пункта был задан, берём его, в противном случае — по умолчанию
-	ddMenuBuilder::$templates['parentHere'] = $tpls_itemParent ? ddMenuBuilder::$templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
+	$ddMenuBuilder_params->templates['parentHere'] = $tpls_itemParent ? $ddMenuBuilder_params->templates['parentRow'] : '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';
 }else{
-	ddMenuBuilder::$templates['parentHere'] = $tpls_itemParentHere;
+	$ddMenuBuilder_params->templates['parentHere'] = $tpls_itemParentHere;
 }
-ddMenuBuilder::$templates['parentActive'] = $tpls_itemParentActive ? $tpls_itemParentActive : ddMenuBuilder::$templates['parentHere'];
+$ddMenuBuilder_params->templates['parentActive'] = $tpls_itemParentActive ? $tpls_itemParentActive : $ddMenuBuilder_params->templates['parentHere'];
 
-ddMenuBuilder::$templates['unpubParentRow'] = $tpls_itemParentUnpub ? $tpls_itemParentUnpub : ddMenuBuilder::$templates['parentRow'];
-ddMenuBuilder::$templates['unpubParentActive'] = $tpls_itemParentUnpubActive ? $tpls_itemParentUnpubActive : ddMenuBuilder::$templates['parentActive'];
+$ddMenuBuilder_params->templates['unpubParentRow'] = $tpls_itemParentUnpub ? $tpls_itemParentUnpub : $ddMenuBuilder_params->templates['parentRow'];
+$ddMenuBuilder_params->templates['unpubParentActive'] = $tpls_itemParentUnpubActive ? $tpls_itemParentUnpubActive : $ddMenuBuilder_params->templates['parentActive'];
 
 $tpls_outer = (isset($tpls_outer)) ? $modx->getChunk($tpls_outer) : '<ul>[+children+]</ul>';
 
-//Получаем id текущего документа
-ddMenuBuilder::$id = $modx->documentIdentifier;
-//Таблицу, в которой лежат страницы
-ddMenuBuilder::$table = $modx->getFullTableName('site_content');
 //Направление сортировки
-ddMenuBuilder::$sortDir = isset($sortDir) ? strtoupper($sortDir) : 'ASC';
+if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
 //Условие where для sql
-ddMenuBuilder::$where = '';
+$ddMenuBuilder_params->where = '';
 
 //По умолчанию берем только опубликованные документы
 if (!is_numeric($showPublishedOnly) || $showPublishedOnly == 1){
-	ddMenuBuilder::$where .= 'AND `published` = 1 ';
+	$ddMenuBuilder_params->where .= 'AND `published` = 1 ';
 }
 
 //По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
 if (!is_numeric($showInMenuOnly) || $showInMenuOnly == 1){
-	ddMenuBuilder::$where .= 'AND `hidemenu` = 0';
+	$ddMenuBuilder_params->where .= 'AND `hidemenu` = 0';
 }
 
+$ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
+
 //Генерируем меню
-$result = ddMenuBuilder::generate($startId, $depth);
+$result = $ddMenuBuilder->generate($startId, $depth);
 
 return ddTools::parseText($tpls_outer, array('children' => $result['outputString']), '[+', '+]');
 ?>

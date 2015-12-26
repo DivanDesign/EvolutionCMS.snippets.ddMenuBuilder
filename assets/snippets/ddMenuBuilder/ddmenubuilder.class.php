@@ -15,26 +15,72 @@ if (!class_exists('ddMenuBuilder')){
 require_once $modx->config['base_path'].'assets/snippets/ddTools/modx.ddtools.class.php';
 
 class ddMenuBuilder {
-	public static $id;
-	public static $table;
-	public static $templates;
-	public static $sortDir;
-	public static $where;
+	private $id;
+	private $templates = array(
+		'row' => '',
+		'here' => '',
+		'active' => '',
+		'parentRow' => '',
+		'parentHere' => '',
+		'parentActive' => '',
+		'unpubParentRow' => '',
+		'unpubParentActive' => ''
+	);
+	private $sortDir = 'ASC';
+	private $where = '';
+	
+	/**
+	 * __construct
+	 * @version 1.0 (2015-12-26)
+	 * 
+	 * @param $params {stdClass} — The object of params. @required
+	 * @param $params->templates {array} — Шаблоны элементов меню. @required
+	 * @param $params->templates['row'] {array} — Шаблон элемента. @required
+	 * @param $params->templates['here'] {array} — Шаблон текущего элемента (когда находимся на этой странице). @required
+	 * @param $params->templates['active'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). @required
+	 * @param $params->templates['parentRow'] {array} — Шаблон элемента-родителя. @required
+	 * @param $params->templates['parentHere'] {array} — Шаблон активного элемента-родителя. @required
+	 * @param $params->templates['parentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. @required
+	 * @param $params->templates['unpubParentRow'] {array} — Шаблон элемента-родителя, если он не опубликован. @required
+	 * @param $params->templates['unpubParentActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. @required
+	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
+	 * @param $params->where {string} — SQL-where. @required
+	 * @param $params->id {integer} — ID текущего документа. Default: $modx->documentIdentifier.
+	 */
+	public function __construct(stdClass $params){
+		global $modx;
+		
+		//ID текущего документа
+		if (isset($params->id)){
+			$this->id = $params->id;
+		}else{
+			$this->id = $modx->documentIdentifier;
+		}
+		
+		$this->templates = $params->templates;
+		
+		//Направление сортировки
+		if (isset($params->sortDir)){
+			$this->sortDir = strtoupper($params->sortDir);
+		}
+		
+		$this->where = $params->where;
+	}
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.2 (2015-01-17)
+	 * @version 1.0.3 (2015-12-26)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params['docId'] {integer} - ID документа. @required
-	 * @param $params['docPublished'] {0; 1} - Признак публикации документа. @required
-	 * @param $params['hasActiveChildren'] {boolean} - Есть ли у документа активные дочерние документы. @required
-	 * @param $params['hasChildrenOutput'] {boolean} - Будут ли у документа выводиться дочерние. @required
+	 * @param $params['docId'] {integer} — ID документа. @required
+	 * @param $params['docPublished'] {0; 1} — Признак публикации документа. @required
+	 * @param $params['hasActiveChildren'] {boolean} — Есть ли у документа активные дочерние документы. @required
+	 * @param $params['hasChildrenOutput'] {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
-	 * @return {string} - Шаблон для вывода.
+	 * @return {string} — Шаблон для вывода.
 	 */
-	public static function getOutputTemplate($params){
+	private function getOutputTemplate($params){
 		$result = '';
 		
 		//Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
@@ -42,20 +88,20 @@ class ddMenuBuilder {
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
 			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['docId'] == self::$id){
+				if ($params['docId'] == $this->id){
 					//Шаблон активного родительского пункта меню
-					$result = self::$templates['parentHere'];
+					$result = $this->templates['parentHere'];
 				//Если не не активный
 				}else{
 					//Если один из дочерних был активным
 					if ($params['hasActiveChildren']){
 						//Сообщаем, что что-то активное есть
 						//Шаблон родительского пункта меню, когда активный один из дочерних
-						$result = self::$templates['parentActive'];
+						$result = $this->templates['parentActive'];
 					//Если активных дочерних не было
 					}else{
 						//Шаблон родительского пункта меню
-						$result = self::$templates['parentRow'];
+						$result = $this->templates['parentRow'];
 					}
 				}
 			//Если не опубликован
@@ -64,11 +110,11 @@ class ddMenuBuilder {
 				if ($params['hasActiveChildren']){
 					//Сообщаем, что что-то активное есть
 					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
-					$result = self::$templates['unpubParentActive'];
+					$result = $this->templates['unpubParentActive'];
 				//Если активных дочерних не было
 				}else{
 					//Шаблон неопубликованного родительского пункта меню
-					$result = self::$templates['unpubParentRow'];
+					$result = $this->templates['unpubParentRow'];
 				}
 			}
 		//Если дочерних нет (отображаемых дочерних)
@@ -76,16 +122,16 @@ class ddMenuBuilder {
 			//Если опубликован
 			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['docId'] == self::$id){
+				if ($params['docId'] == $this->id){
 					//Шаблон активного пункта
-					$result = self::$templates['here'];
+					$result = $this->templates['here'];
 				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
 				}else if($params['hasActiveChildren']){
-					$result = self::$templates['active'];
+					$result = $this->templates['active'];
 				//Если не не активный
 				}else{
 					//Шаблон пункта меню
-					$result = self::$templates['row'];
+					$result = $this->templates['row'];
 				}
 			}
 		}
@@ -93,7 +139,18 @@ class ddMenuBuilder {
 		return $result;
 	}
 	
-	public static function generate($startId, $depth){
+	/**
+	 * generate
+	 * @version 1.0.1 (2015-12-26)
+	 * 
+	 * @desc Сторит меню.
+	 * 
+	 * @param $startId {integer} — Откуда брать. @required
+	 * @param $depth {integer} — Глубина поиска. Default: 1.
+	 * 
+	 * @return {array}
+	 */
+	public function generate($startId, $depth = 1){
 		global $modx;
 		
 		$result = array(
@@ -106,9 +163,9 @@ class ddMenuBuilder {
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
 			SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
-			FROM '.self::$table.'
-			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.self::$where.'
-			ORDER BY `menuindex` '.self::$sortDir.'
+			FROM '.ddTools::$tables['site_content'].'
+			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.$this->where.'
+			ORDER BY `menuindex` '.$this->sortDir.'
 		');
 		
 		//Если что-то есть
@@ -138,7 +195,7 @@ class ddMenuBuilder {
 				//Если вывод вообще нужен (если «$depth» <= 0, значит этот вызов был только для выяснения активности)
 				if ($depth > 0){
 					//Получаем правильный шаблон для вывода текущего пункта
-					$tpl = self::getOutputTemplate(array(
+					$tpl = $this->getOutputTemplate(array(
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
 						'hasActiveChildren' => $children['hasActive'],
@@ -158,7 +215,7 @@ class ddMenuBuilder {
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if ($doc['id'] == self::$id || $children['hasActive']){$result['hasActive'] = true;}
+				if ($doc['id'] == $this->id || $children['hasActive']){$result['hasActive'] = true;}
 			}
 		}
 		
