@@ -15,7 +15,7 @@ if (!class_exists('ddMenuBuilder')){
 require_once $modx->config['base_path'].'assets/snippets/ddTools/modx.ddtools.class.php';
 
 class ddMenuBuilder {
-	private $id;
+	private $hereDocId;
 	private $templates = array(
 		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
@@ -31,7 +31,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.2 (2015-12-27)
+	 * @version 1.2.1 (2015-12-27)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -46,7 +46,7 @@ class ddMenuBuilder {
 	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
 	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
 	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
-	 * @param $params->id {integer} — ID текущего документа. Default: $modx->documentIdentifier.
+	 * @param $params->hereDocId {integer} — ID текущего документа. Default: $modx->documentIdentifier.
 	 */
 	public function __construct(stdClass $params = NULL){
 		global $modx;
@@ -55,10 +55,10 @@ class ddMenuBuilder {
 		if ((is_null($params))){$params = new stdClass();}
 		
 		//ID текущего документа
-		if (isset($params->id)){
-			$this->id = $params->id;
+		if (isset($params->hereDocId)){
+			$this->hereDocId = $params->hereDocId;
 		}else{
-			$this->id = $modx->documentIdentifier;
+			$this->hereDocId = $modx->documentIdentifier;
 		}
 		
 		//Если шаблоны переданы
@@ -110,7 +110,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.4 (2015-12-26)
+	 * @version 1.0.5 (2015-12-27)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -129,7 +129,7 @@ class ddMenuBuilder {
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
 			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->id){
+				if ($params['docId'] == $this->hereDocId){
 					//Шаблон активного родительского пункта меню
 					$result = $this->templates['itemParentHere'];
 				//Если не не активный
@@ -163,7 +163,7 @@ class ddMenuBuilder {
 			//Если опубликован
 			if ($params['docPublished']){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->id){
+				if ($params['docId'] == $this->hereDocId){
 					//Шаблон активного пункта
 					$result = $this->templates['itemHere'];
 				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
@@ -182,7 +182,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 1.0.1 (2015-12-26)
+	 * @version 1.0.2 (2015-12-27)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -256,7 +256,7 @@ class ddMenuBuilder {
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if ($doc['id'] == $this->id || $children['hasActive']){$result['hasActive'] = true;}
+				if ($doc['id'] == $this->hereDocId || $children['hasActive']){$result['hasActive'] = true;}
 			}
 		}
 		
