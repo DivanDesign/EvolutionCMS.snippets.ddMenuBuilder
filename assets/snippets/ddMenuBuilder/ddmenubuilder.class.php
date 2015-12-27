@@ -4,16 +4,13 @@
  * @version 1.2 (2015-02-05)
  * 
  * @uses modx 1.0.6 (Evo)
- * @uses modx ddTools lib 0.13.
+ * @uses The library modx.ddTools 0.15.
  * 
  * @copyright 2015, DivanDesign
  * http://www.DivanDesign.biz
  */
 
 if (!class_exists('ddMenuBuilder')){
-//Подключаем modx.ddTools
-require_once $modx->config['base_path'].'assets/snippets/ddTools/modx.ddtools.class.php';
-
 class ddMenuBuilder {
 	private $hereDocId;
 	private $templates = array(
@@ -31,7 +28,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.2.1 (2015-12-27)
+	 * @version 1.2.2 (2015-12-27)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -50,6 +47,9 @@ class ddMenuBuilder {
 	 */
 	public function __construct(stdClass $params = NULL){
 		global $modx;
+		
+		//Подключаем modx.ddTools
+		require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.class.php';
 		
 		//Параметры могут быть не переданы
 		if ((is_null($params))){$params = new stdClass();}
