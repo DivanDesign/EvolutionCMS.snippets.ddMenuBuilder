@@ -17,39 +17,42 @@ require_once $modx->config['base_path'].'assets/snippets/ddTools/modx.ddtools.cl
 class ddMenuBuilder {
 	private $id;
 	private $templates = array(
-		'item' => '',
-		'itemHere' => '',
-		'itemActive' => '',
-		'itemParent' => '',
-		'itemParentHere' => '',
-		'itemParentActive' => '',
-		'itemParentUnpub' => '',
-		'itemParentUnpubActive' => ''
+		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+		'itemActive' => NULL,
+		'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+		'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+		'itemParentActive' => NULL,
+		'itemParentUnpub' => NULL,
+		'itemParentUnpubActive' => NULL
 	);
 	private $sortDir = 'ASC';
 	private $where = '';
 	
 	/**
 	 * __construct
-	 * @version 1.1.1 (2015-12-26)
+	 * @version 1.2 (2015-12-27)
 	 * 
-	 * @param $params {stdClass} — The object of params. @required
-	 * @param $params->templates {array} — Шаблоны элементов меню. @required
-	 * @param $params->templates['item'] {array} — Шаблон элемента. @required
-	 * @param $params->templates['itemHere'] {array} — Шаблон текущего элемента (когда находимся на этой странице). @required
-	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). @required
-	 * @param $params->templates['itemParent'] {array} — Шаблон элемента-родителя. @required
-	 * @param $params->templates['itemParentHere'] {array} — Шаблон активного элемента-родителя. @required
-	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. @required
-	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. @required
-	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. @required
-	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
+	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
+	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
+	 * @param $params->templates {array} — Шаблоны элементов меню. Default: $this->templates.
+	 * @param $params->templates['item'] {array} — Шаблон элемента. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+	 * @param $params->templates['itemHere'] {array} — Шаблон текущего элемента (когда находимся на этой странице). Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates['itemHere'].
+	 * @param $params->templates['itemParent'] {array} — Шаблон элемента-родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+	 * @param $params->templates['itemParentHere'] {array} — Шаблон активного элемента-родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
+	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
+	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
 	 * @param $params->id {integer} — ID текущего документа. Default: $modx->documentIdentifier.
 	 */
-	public function __construct(stdClass $params){
+	public function __construct(stdClass $params = NULL){
 		global $modx;
+		
+		//Параметры могут быть не переданы
+		if ((is_null($params))){$params = new stdClass();}
 		
 		//ID текущего документа
 		if (isset($params->id)){
@@ -58,7 +61,36 @@ class ddMenuBuilder {
 			$this->id = $modx->documentIdentifier;
 		}
 		
-		$this->templates = $params->templates;
+		//Если шаблоны переданы
+		if (isset($params->templates)){
+			//Перебираем шаблоны объекта
+			foreach ($this->templates as $key => $val){
+				//Если шаблон передан — сохраняем
+				if (isset($params->templates[$key])){
+					$this->templates[$key] = $params->templates[$key];
+				}
+			}
+		}
+		
+		//Шаблон активного элемента по умолчанию равен шаблону текущего элемента
+		if (is_null($this->templates['itemActive'])){
+			$this->templates['itemActive'] = $this->templates['itemHere'];
+		}
+		
+		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
+		if (is_null($this->templates['itemParentActive'])){
+			$this->templates['itemParentActive'] = $this->templates['itemParentHere'];
+		}
+		
+		//Шаблон неопубликованного элемента-родителя по умолчанию равен шаблону элемента-родителя
+		if (is_null($this->templates['itemParentUnpub'])){
+			$this->templates['itemParentUnpub'] = $this->templates['itemParent'];
+		}
+		
+		//Шаблон неопубликованного активного элемента-родителя по умолчанию равен шаблону активного элемента-родителя
+		if (is_null($this->templates['itemParentUnpubActive'])){
+			$this->templates['itemParentUnpubActive'] = $this->templates['itemParentActive'];
+		}
 		
 		//Направление сортировки
 		if (isset($params->sortDir)){
