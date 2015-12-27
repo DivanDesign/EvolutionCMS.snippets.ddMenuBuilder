@@ -34,7 +34,7 @@
  */
 
 //Подключаем класс (ddTools подключится там)
-require_once $modx->config['base_path'].'assets/snippets/ddMenuBuilder/ddmenubuilder.class.php';
+require_once $modx->getConfig('base_path').'assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php';
 
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams($params, array(
