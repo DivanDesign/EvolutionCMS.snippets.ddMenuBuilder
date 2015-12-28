@@ -2,6 +2,37 @@
 Строит меню. Идея сниппета в совмещении преимуществ Wayfinder и Ditto при значительном упрощении кода.
 
 ## Changelog
+### 1.9 (2015-12-28)
+* \* Внимание! Используется «modx.ddTools» 0.15.
+* \* ddMenuBuilder snippet:
+	* \* Вместо прямого обращения к полю «$modx->config» используется метод «$modx->getConfig».
+	* \* Следующие параметры были переименованы (старые имена поддерживаются, но не рекомендуются к использованию):
+		* \* «tplRow» → «tpls_item».
+		* \* «tplHere» → «tpls_itemHere».
+		* \* «tplActive» → «tpls_itemActive».
+		* \* «tplParentRow» → «tpls_itemParent».
+		* \* «tplParentHere» → «tpls_itemParentHere».
+		* \* «tplParentActive» → «tpls_itemParentActive».
+		* \* «tplUnpubParentRow» → «tpls_itemParentUnpub».
+		* \* «tplUnpubParentActive» → «tpls_itemParentUnpubActive».
+		* \* «tplWrap» → «tpls_outer».
+	* \* Параметр «tpls_itemParentHere» по умолчанию равен `<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>` (значение по умолчанию больше не зависит от параметра «tpls_itemParent»). Решение неоднозначное, подумать.
+* \* ddMenuBuilder class обновлён до 2.0:
+	* \* Теперь это обычный объект, поля и методы не статические.
+	* \* Публичный только метод «generate», остальные поля и методы приватные.
+	* \- Удалено поле «$table», вместо него используется «ddTools::$tables['site_content']».
+	* \* Поле «ddMenuBuilder->id» переименовано в «ddMenuBuilder->hereDocId».
+	* \+ Добавлены значения по умолчанию для полей «sortDir» и «where».
+	* \+ Значения шаблонов по умолчанию хранятся в поле «ddMenuBuilder->templates».
+	* \* Переименованы шаблоны.
+	* \+ Добавлен конструктор.
+	* \* Обработка параметров «showPublishedOnly», «showInMenuOnly» и формирование SQL-условия вынесены из сниппета в конструктор класса «ddMenuBuilder».
+	* \* Обработка значений шаблонов по умолчанию вынесена из сниппета в конструктор класса «ddMenuBuilder».
+	* \* Подключение библиотеки «modx.ddTools» вынесено в конструктор.
+	* \* Вместо прямого обращения к полю «$modx->config» используется метод «$modx->getConfig».
+	* \* Файл «assets/snippets/ddMenuBuilder/ddmenubuilder.class.php» переименован в «assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php».
+	* \* Внимание! Используется «modx.ddTools» 1.0.15.
+
 ### 1.8 (2015-02-05)
 * \* ddMenuBuilder snippet:
 	* \* Плэйсхолдер «[+wrapper+]» во всех шаблонах заменён на «[+children+]».
