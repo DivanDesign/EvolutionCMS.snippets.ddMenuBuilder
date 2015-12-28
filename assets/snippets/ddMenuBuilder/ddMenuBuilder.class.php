@@ -1,13 +1,12 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 1.2 (2015-02-05)
+ * @version 2.0 (2015-12-28)
  * 
- * @uses modx 1.0.6 (Evo)
+ * @uses MODX Evo 1.0.15.
  * @uses The library modx.ddTools 0.15.
  * 
- * @copyright 2015, DivanDesign
- * http://www.DivanDesign.biz
+ * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 if (!class_exists('ddMenuBuilder')){

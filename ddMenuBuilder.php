@@ -1,36 +1,35 @@
 <?php
 /**
  * ddMenuBuilder.php
- * @version 1.8 (2015-02-05)
+ * @version 1.9 (2015-12-28)
  * 
  * @desc Строит меню. Идея сниппета в совмещении преимуществ Wayfinder и Ditto при значительном упрощении кода.
  * 
  * @uses The library modx.ddTools 0.15.
  * 
  * Основные параметры:
- * @param $startId {integer} - Откуда брать. Default: 0.
- * @param $depth {integer} - Глубина поиска. Default: 1.
- * @param $sortDir {'ASC', 'DESC'} - Направление сортировки. Default: 'ASC'.
- * @param $showPublishedOnly {0; 1} - Брать ли только опубликованные документы. Default: 1.
- * @param $showInMenuOnly {0; 1} - Брать ли только те документы, что надо показывать в меню. Default: 1.
+ * @param $startId {integer} — Откуда брать. Default: 0.
+ * @param $depth {integer} — Глубина поиска. Default: 1.
+ * @param $sortDir {'ASC'|'DESC'} — Направление сортировки (сортируются по menuindex). Default: 'ASC'.
+ * @param $showPublishedOnly {0|1} — Брать ли только опубликованные документы. Default: 1.
+ * @param $showInMenuOnly {0|1} — Брать ли только те документы, что надо показывать в меню. Default: 1.
  * 
  * Шаблоны:
- * Доступные плэйсхолдеры во всех шаблонах: [+id+], [+menutitle+], [+pagetitle+], [+published+], [+isfolder+].
- * @param $tpls_item {string: chunkName} - Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemHere {string: chunkName} - Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemActive {string: chunkName} - Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tpls_itemHere.
+ * Доступные плэйсхолдеры во всех шаблонах: [+id+], [+menutitle+] (если не заполнен, подставляется pagetitle), [+pagetitle+], [+published+], [+isfolder+].
+ * @param $tpls_item {string: chunkName} — Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemHere {string: chunkName} — Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemActive {string: chunkName} — Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tpls_itemHere.
  * 
- * @param $tpls_itemParent {string: chunkName} - Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
- * @param $tpls_itemParentHere {string: chunkName} - Шаблон активного пункта меню родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
- * @param $tpls_itemParentActive {string: chunkName} - Шаблон пункта меню родителя, когда дочерний является here. Default: $tpls_itemParentHere.
+ * @param $tpls_itemParent {string: chunkName} — Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
+ * @param $tpls_itemParentHere {string: chunkName} — Шаблон активного пункта меню родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+ * @param $tpls_itemParentActive {string: chunkName} — Шаблон пункта меню родителя, когда дочерний является here. Default: $tpls_itemParentHere.
  * 
- * @param $tpls_itemParentUnpub {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован. Default: $tpls_itemParent.
- * @param $tpls_itemParentUnpubActive {string: chunkName} - Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tpls_itemParentActive.
+ * @param $tpls_itemParentUnpub {string: chunkName} — Шаблон пункта меню родителя, если он не опубликован. Default: $tpls_itemParent.
+ * @param $tpls_itemParentUnpubActive {string: chunkName} — Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tpls_itemParentActive.
  * 
- * @param $tpls_outer {string: chunkName} - Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
+ * @param $tpls_outer {string: chunkName} — Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
- * @copyright 2015, DivanDesign
- * http://www.DivanDesign.biz
+ * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем класс (ddTools подключится там)
