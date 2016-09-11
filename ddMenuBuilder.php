@@ -29,6 +29,8 @@
  * 
  * @param $tpls_outer {string: chunkName} — Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
+ * @param $placeholders {string: queryStringFormat} — Дополнительные данные в виде query string которые будут переданы в шаблон «tpls_outer». Например: «pladeholder1=value1&pagetitle=My awesome pagetitle!». Default: —.
+ * 
  * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
@@ -85,5 +87,22 @@ $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 //Генерируем меню
 $result = $ddMenuBuilder->generate($startId, $depth);
 
-return ddTools::parseText($tpls_outer, array('children' => $result['outputString']), '[+', '+]');
+//Данные, которые необоходимо передать в шаблон
+if (isset($placeholders)){
+	//Parse a query string
+	parse_str($placeholders, $placeholders);
+	//Unfold for arrays support (e. g. “some[a]=one&some[b]=two” => “[+some.a+]”, “[+some.b+]”; “some[]=one&some[]=two” => “[+some.0+]”, “[some.1]”)
+	$placeholders = ddTools::unfoldArray($placeholders);
+}
+//Корректно инициализируем при необходимости
+if (
+	!isset($placeholders) ||
+	!is_array($placeholders)
+){
+	$placeholders = array();
+}
+
+$placeholders['children'] = $result['outputString'];
+
+return ddTools::parseText($tpls_outer, $placeholders, '[+', '+]');
 ?>
