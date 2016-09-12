@@ -5,6 +5,7 @@
  * 
  * @desc Строит меню. Идея сниппета в совмещении преимуществ Wayfinder и Ditto при значительном упрощении кода.
  * 
+ * @uses MODXEvo >= 1.1.
  * @uses The library modx.ddTools 0.15.
  * 
  * Основные параметры:
@@ -16,18 +17,18 @@
  * 
  * Шаблоны:
  * Доступные плэйсхолдеры во всех шаблонах: [+id+], [+menutitle+] (если не заполнен, подставляется pagetitle), [+pagetitle+], [+published+], [+isfolder+].
- * @param $tpls_item {string: chunkName} — Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemHere {string: chunkName} — Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemActive {string: chunkName} — Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tpls_itemHere.
+ * @param $tpls_item {string: chunkName|string} — Шаблон пункта меню. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemHere {string: chunkName|string} — Шаблон активного пункта меню. '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $tpls_itemActive {string: chunkName|string} — Шаблон пункта меню, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $tpls_itemHere.
  * 
- * @param $tpls_itemParent {string: chunkName} — Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
- * @param $tpls_itemParentHere {string: chunkName} — Шаблон активного пункта меню родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
- * @param $tpls_itemParentActive {string: chunkName} — Шаблон пункта меню родителя, когда дочерний является here. Default: $tpls_itemParentHere.
+ * @param $tpls_itemParent {string: chunkName|string} — Шаблон пункта меню родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
+ * @param $tpls_itemParentHere {string: chunkName|string} — Шаблон активного пункта меню родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+ * @param $tpls_itemParentActive {string: chunkName|string} — Шаблон пункта меню родителя, когда дочерний является here. Default: $tpls_itemParentHere.
  * 
- * @param $tpls_itemParentUnpub {string: chunkName} — Шаблон пункта меню родителя, если он не опубликован. Default: $tpls_itemParent.
- * @param $tpls_itemParentUnpubActive {string: chunkName} — Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tpls_itemParentActive.
+ * @param $tpls_itemParentUnpub {string: chunkName|string} — Шаблон пункта меню родителя, если он не опубликован. Default: $tpls_itemParent.
+ * @param $tpls_itemParentUnpubActive {string: chunkName|string} — Шаблон пункта меню родителя, если он не опубликован и дочерний является активным. Default: $tpls_itemParentActive.
  * 
- * @param $tpls_outer {string: chunkName} — Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
+ * @param $tpls_outer {string: chunkName|string} — Шаблон внешней обёртки. Доступные плэйсхолдеры: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
  * @param $placeholders {string: queryStringFormat} — Дополнительные данные в виде query string которые будут переданы в шаблон «tpls_outer». Например: «pladeholder1=value1&pagetitle=My awesome pagetitle!». Default: —.
  * 
@@ -60,20 +61,20 @@ $ddMenuBuilder_params = new stdClass();
 //Задаём шаблоны
 $ddMenuBuilder_params->templates = array();
 
-if (isset($tpls_item)){$ddMenuBuilder_params->templates['item'] = $modx->getChunk($tpls_item);}
-if (isset($tpls_itemHere)){$ddMenuBuilder_params->templates['itemHere'] = $modx->getChunk($tpls_itemHere);}
-if (isset($tpls_itemActive)){$ddMenuBuilder_params->templates['itemActive'] = $modx->getChunk($tpls_itemActive);}
+if (isset($tpls_item)){$ddMenuBuilder_params->templates['item'] = $modx->getTpl($tpls_item);}
+if (isset($tpls_itemHere)){$ddMenuBuilder_params->templates['itemHere'] = $modx->getTpl($tpls_itemHere);}
+if (isset($tpls_itemActive)){$ddMenuBuilder_params->templates['itemActive'] = $modx->getTpl($tpls_itemActive);}
 
-if (isset($tpls_itemParent)){$ddMenuBuilder_params->templates['itemParent'] = $modx->getChunk($tpls_itemParent);}
-if (isset($tpls_itemParentHere)){$ddMenuBuilder_params->templates['itemParentHere'] = $modx->getChunk($tpls_itemParentHere);}
-if (isset($tpls_itemParentActive)){$ddMenuBuilder_params->templates['itemParentActive'] = $modx->getChunk($tpls_itemParentActive);}
+if (isset($tpls_itemParent)){$ddMenuBuilder_params->templates['itemParent'] = $modx->getTpl($tpls_itemParent);}
+if (isset($tpls_itemParentHere)){$ddMenuBuilder_params->templates['itemParentHere'] = $modx->getTpl($tpls_itemParentHere);}
+if (isset($tpls_itemParentActive)){$ddMenuBuilder_params->templates['itemParentActive'] = $modx->getTpl($tpls_itemParentActive);}
 
-if (isset($tpls_itemParentUnpub)){$ddMenuBuilder_params->templates['itemParentUnpub'] = $modx->getChunk($tpls_itemParentUnpub);}
-if (isset($tpls_itemParentUnpubActive)){$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $modx->getChunk($tpls_itemParentUnpubActive);}
+if (isset($tpls_itemParentUnpub)){$ddMenuBuilder_params->templates['itemParentUnpub'] = $modx->getTpl($tpls_itemParentUnpub);}
+if (isset($tpls_itemParentUnpubActive)){$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $modx->getTpl($tpls_itemParentUnpubActive);}
 
 if (empty($ddMenuBuilder_params->templates)){unset($ddMenuBuilder_params->templates);}
 
-$tpls_outer = (isset($tpls_outer)) ? $modx->getChunk($tpls_outer) : '<ul>[+children+]</ul>';
+$tpls_outer = (isset($tpls_outer)) ? $modx->getTpl($tpls_outer) : '<ul>[+children+]</ul>';
 
 //Направление сортировки
 if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
