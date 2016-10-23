@@ -24,12 +24,12 @@ class ddMenuBuilder {
 		'itemParentUnpubActive' => NULL
 	];
 	private $sortDir = 'ASC';
-	private $where = '';
+	private $where = ' AND `deleted` = 0';
 	private $showPublishedOnly = true;
 	
 	/**
 	 * __construct
-	 * @version 1.2.4 (2016-10-24)
+	 * @version 1.2.5 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -103,7 +103,7 @@ class ddMenuBuilder {
 			!isset($params->showPublishedOnly) ||
 			$params->showPublishedOnly
 		){
-			$this->where .= 'AND `published` = 1 ';
+			$this->where .= ' AND `published` = 1 ';
 		}else{
 			$this->showPublishedOnly = false;
 		}
@@ -113,7 +113,7 @@ class ddMenuBuilder {
 			!isset($params->showInMenuOnly) ||
 			$params->showInMenuOnly
 		){
-			$this->where .= 'AND `hidemenu` = 0';
+			$this->where .= ' AND `hidemenu` = 0';
 		}
 	}
 	
@@ -194,16 +194,17 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 1.0.4 (2016-10-24)
+	 * @version 2.0 (2016-10-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $startId {integer} — Откуда брать. @required
+	 * @param $where {array} — Условия выборки. @required
+	 * @param $where[i] {string} — Условие. @required
 	 * @param $depth {integer} — Глубина поиска. Default: 1.
 	 * 
 	 * @return {array}
 	 */
-	public function generate($startId, $depth = 1){
+	public function generate($where, $depth = 1){
 		global $modx;
 		
 		$result = [
@@ -212,6 +213,8 @@ class ddMenuBuilder {
 			//Результирующая строка
 			'outputString' => ''
 		];
+		
+		$where = implode(' AND ', $where).$this->where;
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -224,8 +227,7 @@ class ddMenuBuilder {
 			FROM
 				'.ddTools::$tables['site_content'].'
 			WHERE
-				`parent` = '.$startId.' AND
-				`deleted` = 0 '.$this->where.'
+				'.$where.'
 			ORDER BY
 				`menuindex` '.$this->sortDir.'
 		');
@@ -245,7 +247,9 @@ class ddMenuBuilder {
 				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
-					$children = self::generate($doc['id'], $depth - 1);
+					$children = self::generate([
+						'`parent` = '.$doc['id']
+					], $depth - 1);
 					
 					//Если надо выводить глубже
 					if ($depth > 1){

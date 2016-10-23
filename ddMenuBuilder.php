@@ -90,7 +90,9 @@ if (isset($showInMenuOnly)){$ddMenuBuilder_params->showInMenuOnly = $showInMenuO
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
 //Генерируем меню
-$result = $ddMenuBuilder->generate($startId, $depth);
+$result = $ddMenuBuilder->generate([
+	'`parent` = '.$startId
+], $depth);
 
 //Данные, которые необоходимо передать в шаблон
 if (isset($placeholders)){
