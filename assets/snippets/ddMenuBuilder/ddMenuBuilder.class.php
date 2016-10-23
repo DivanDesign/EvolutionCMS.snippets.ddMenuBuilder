@@ -194,17 +194,23 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 2.0 (2016-10-24)
+	 * @version 3.0 (2016-10-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $where {array} — Условия выборки. @required
-	 * @param $where[i] {string} — Условие. @required
-	 * @param $depth {integer} — Глубина поиска. Default: 1.
+	 * @param $params {stdClass|array: associative} — The object of params. @required
+	 * @param $params->where {array} — Условия выборки. @required
+	 * @param $params->where[i] {string} — Условие. @required
+	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * 
 	 * @return {array}
 	 */
-	public function generate($where, $depth = 1){
+	public function generate($params = []){
+		//Defaults
+		$params = (object) array_merge([
+			'depth' => 1
+		], (array) $params);
+		
 		global $modx;
 		
 		$result = [
@@ -214,7 +220,7 @@ class ddMenuBuilder {
 			'outputString' => ''
 		];
 		
-		$where = implode(' AND ', $where).$this->where;
+		$params->where = implode(' AND ', $params->where).$this->where;
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -227,7 +233,7 @@ class ddMenuBuilder {
 			FROM
 				'.ddTools::$tables['site_content'].'
 			WHERE
-				'.$where.'
+				'.$params->where.'
 			ORDER BY
 				`menuindex` '.$this->sortDir.'
 		');
@@ -248,18 +254,21 @@ class ddMenuBuilder {
 				if ($doc['isfolder']){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = self::generate([
-						'`parent` = '.$doc['id']
-					], $depth - 1);
+						'where' => [
+							'`parent` = '.$doc['id']
+						],
+						'depth' => $params->depth - 1
+					]);
 					
 					//Если надо выводить глубже
-					if ($depth > 1){
+					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
 					}
 				}
 				
-				//Если вывод вообще нужен (если «$depth» <= 0, значит этот вызов был только для выяснения активности)
-				if ($depth > 0){
+				//Если вывод вообще нужен (если «$params->depth» <= 0, значит этот вызов был только для выяснения активности)
+				if ($params->depth > 0){
 					//Получаем правильный шаблон для вывода текущего пункта
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
