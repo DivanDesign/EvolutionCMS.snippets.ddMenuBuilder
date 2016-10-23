@@ -24,10 +24,11 @@ class ddMenuBuilder {
 	);
 	private $sortDir = 'ASC';
 	private $where = '';
+	private $showPublishedOnly = true;
 	
 	/**
 	 * __construct
-	 * @version 1.2.2 (2015-12-27)
+	 * @version 1.2.3 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -99,6 +100,8 @@ class ddMenuBuilder {
 		//По умолчанию берем только опубликованные документы
 		if (!isset($params->showPublishedOnly) || $params->showPublishedOnly){
 			$this->where .= 'AND `published` = 1 ';
+		}else{
+			$this->showPublishedOnly = false;
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
@@ -109,7 +112,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.5 (2015-12-27)
+	 * @version 1.0.6 (2016-10-24)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -159,8 +162,11 @@ class ddMenuBuilder {
 			}
 		//Если дочерних нет (отображаемых дочерних)
 		}else{
-			//Если опубликован
-			if ($params['docPublished']){
+			//Если опубликован или публикация не важна
+			if (
+				!$this->showPublishedOnly ||
+				$params['docPublished']
+			){
 				//Если текущий пункт является активным
 				if ($params['docId'] == $this->hereDocId){
 					//Шаблон активного пункта
