@@ -5,6 +5,7 @@
  * 
  * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
  * 
+ * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
  * @uses The library modx.ddTools >= 0.15.
  * 
@@ -42,7 +43,7 @@
 require_once $modx->getConfig('base_path').'assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php';
 
 //Для обратной совместимости
-extract(ddTools::verifyRenamedParams($params, array(
+extract(ddTools::verifyRenamedParams($params, [
 	'tpls_item' => 'tplRow',
 	'tpls_itemHere' => 'tplHere',
 	'tpls_itemActive' => 'tplActive',
@@ -52,7 +53,7 @@ extract(ddTools::verifyRenamedParams($params, array(
 	'tpls_itemParentUnpub' => 'tplUnpubParentRow',
 	'tpls_itemParentUnpubActive' => 'tplUnpubParentActive',
 	'tpls_outer' => 'tplWrap'
-)));
+]));
 
 //Откуда брать
 $startId = is_numeric($startId) ? $startId : 0;
@@ -62,7 +63,7 @@ $depth = (is_numeric($depth)) ? $depth : 1;
 $ddMenuBuilder_params = new stdClass();
 
 //Задаём шаблоны
-$ddMenuBuilder_params->templates = array();
+$ddMenuBuilder_params->templates = [];
 
 if (isset($tpls_item)){$ddMenuBuilder_params->templates['item'] = $modx->getTpl($tpls_item);}
 if (isset($tpls_itemHere)){$ddMenuBuilder_params->templates['itemHere'] = $modx->getTpl($tpls_itemHere);}
@@ -103,7 +104,7 @@ if (
 	!isset($placeholders) ||
 	!is_array($placeholders)
 ){
-	$placeholders = array();
+	$placeholders = [];
 }
 
 $placeholders['children'] = $result['outputString'];

@@ -3,6 +3,7 @@
  * modx ddMenuBuilder class
  * @version 2.0 (2015-12-28)
  * 
+ * @uses PHP >= 5.4.
  * @uses MODX Evo 1.0.15.
  * @uses The library modx.ddTools 0.15.
  * 
@@ -12,7 +13,7 @@
 if (!class_exists('ddMenuBuilder')){
 class ddMenuBuilder {
 	private $hereDocId;
-	private $templates = array(
+	private $templates = [
 		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemActive' => NULL,
@@ -21,7 +22,7 @@ class ddMenuBuilder {
 		'itemParentActive' => NULL,
 		'itemParentUnpub' => NULL,
 		'itemParentUnpubActive' => NULL
-	);
+	];
 	private $sortDir = 'ASC';
 	private $where = '';
 	private $showPublishedOnly = true;
@@ -187,7 +188,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 1.0.2 (2015-12-27)
+	 * @version 1.0.3 (2016-10-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -199,12 +200,12 @@ class ddMenuBuilder {
 	public function generate($startId, $depth = 1){
 		global $modx;
 		
-		$result = array(
+		$result = [
 			//Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
 			//Результирующая строка
 			'outputString' => ''
-		);
+		];
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -219,10 +220,10 @@ class ddMenuBuilder {
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
 				//Пустые дети
-				$children = array(
+				$children = [
 					'hasActive' => false,
 					'outputString' => ''
-				);
+				];
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
 				
@@ -241,12 +242,12 @@ class ddMenuBuilder {
 				//Если вывод вообще нужен (если «$depth» <= 0, значит этот вызов был только для выяснения активности)
 				if ($depth > 0){
 					//Получаем правильный шаблон для вывода текущего пункта
-					$tpl = $this->getOutputTemplate(array(
+					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
 						'hasActiveChildren' => $children['hasActive'],
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
-					));
+					]);
 					
 					//Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
