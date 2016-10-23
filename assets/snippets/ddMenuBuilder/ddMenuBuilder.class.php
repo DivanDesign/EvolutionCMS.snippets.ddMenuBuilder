@@ -29,7 +29,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.2.3 (2016-10-24)
+	 * @version 1.2.4 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -99,14 +99,20 @@ class ddMenuBuilder {
 		}
 		
 		//По умолчанию берем только опубликованные документы
-		if (!isset($params->showPublishedOnly) || $params->showPublishedOnly){
+		if (
+			!isset($params->showPublishedOnly) ||
+			$params->showPublishedOnly
+		){
 			$this->where .= 'AND `published` = 1 ';
 		}else{
 			$this->showPublishedOnly = false;
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
-		if (!isset($params->showInMenuOnly) || $params->showInMenuOnly){
+		if (
+			!isset($params->showInMenuOnly) ||
+			$params->showInMenuOnly
+		){
 			$this->where .= 'AND `hidemenu` = 0';
 		}
 	}
@@ -188,7 +194,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 1.0.3 (2016-10-24)
+	 * @version 1.0.4 (2016-10-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -209,10 +215,19 @@ class ddMenuBuilder {
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
-			SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
-			FROM '.ddTools::$tables['site_content'].'
-			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.$this->where.'
-			ORDER BY `menuindex` '.$this->sortDir.'
+			SELECT
+				`id`,
+				`menutitle`,
+				`pagetitle`,
+				`published`,
+				`isfolder`
+			FROM
+				'.ddTools::$tables['site_content'].'
+			WHERE
+				`parent` = '.$startId.' AND
+				`deleted` = 0 '.$this->where.'
+			ORDER BY
+				`menuindex` '.$this->sortDir.'
 		');
 		
 		//Если что-то есть
@@ -262,7 +277,12 @@ class ddMenuBuilder {
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if ($doc['id'] == $this->hereDocId || $children['hasActive']){$result['hasActive'] = true;}
+				if (
+					$doc['id'] == $this->hereDocId ||
+					$children['hasActive']
+				){
+					$result['hasActive'] = true;
+				}
 			}
 		}
 		
