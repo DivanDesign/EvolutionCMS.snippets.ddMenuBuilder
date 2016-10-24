@@ -193,6 +193,65 @@ class ddMenuBuilder {
 	}
 	
 	/**
+	 * prepareProviderParams
+	 * @version 0.1 (2016-10-24)
+	 * 
+	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
+	 * @param $params->providerParams {array_associative} — Parameters to be passed to the provider.
+	 * 
+	 * @return {array_associative}
+	 */
+	public function prepareProviderParams($params = []){
+		//Defaults
+		$params = (object) array_merge([
+			'provider' => 'parent'
+		], (array) $params);
+		
+		$result = [
+			'where' => [],
+			'depth' => 1
+		];
+		
+		switch ($params->provider){
+			case 'select':
+				//Required paremeter
+				if (
+					isset($params->providerParams['ids']) &&
+					!empty($params->providerParams['ids'])
+				){
+					if (is_array($params->providerParams['ids'])){
+						$params->providerParams['ids'] = implode(',', $params->providerParams['ids']);
+					}
+					
+					$result['where'][] = '`id` IN('.$params->providerParams['ids'].')';
+				}else{
+					//Never
+					$result['where'][] = '0 = 1';
+				}
+			break;
+			
+			default:
+			case 'parent':
+				//Defaults
+				$params->providerParams = array_merge([
+					'parentIds' => 0,
+					'depth' => 1
+				], $params->providerParams);
+				
+				if (is_array($params->providerParams['parentIds'])){
+					$params->providerParams['parentIds'] = implode(',', $params->providerParams['parentIds']);
+				}
+				
+				$result['where'][] = '`parent` IN('.$params->providerParams['parentIds'].')';
+				$result['depth'] = $params->providerParams['depth'];
+			break;
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * generate
 	 * @version 3.0 (2016-10-24)
 	 * 

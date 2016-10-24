@@ -9,9 +9,19 @@
  * @uses MODXEvo >= 1.1.
  * @uses The library modx.ddTools >= 0.15.
  * 
+ * Data provider parameters:
+ * @param $provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
+ * @param $providerParams {string_query} — Parameters to be passed to the provider. The parameter must be set as a query string,
+ * When $provider == 'parent' =>
+ * @param $providerParams['parentIds'] {array|string_commaSepareted} — Parent IDs — the starting points for the menu. Specify '0' to start from the site root. Default: '0'.
+ * @param $providerParams['parentIds'][i] {integer_documentID} — Parent ID. @required
+ * @param $providerParams['depth'] {integer} —  The depth of documents to build the menu. Default: 1.
+ * e.g. $providerParams = 'parentId=1&depth=2'.
+ * When $provider == 'select' =>
+ * @param $providerParams['ids'] {array|string_commaSepareted} — Document IDs. @required
+ * @param $providerParams['ids'][i] {integer_documentID} — Document ID. @required
+ * 
  * General parameters:
- * @param $startId {integer: documentID} — The starting point for the menu (document ID). Specify 0 to start from the site root. Default: 0.
- * @param $depth {integer} — The depth of documents to build the menu. Default: 1.
  * @param $sortDir {'ASC'|'DESC'} — The sorting direction (by “menuindex” field). Default: 'ASC'.
  * @param $showPublishedOnly {0|1} — Show only published documents. Default: 1.
  * @param $showInMenuOnly {0|1} — Show only documents visible in the menu. Default: 1.
@@ -55,10 +65,14 @@ extract(ddTools::verifyRenamedParams($params, [
 	'tpls_outer' => 'tplWrap'
 ]));
 
-//Откуда брать
-$startId = is_numeric($startId) ? $startId : 0;
-//По умолчанию на 1 уровня
-$depth = (is_numeric($depth)) ? $depth : 1;
+//Backward compatibility
+if (
+	isset($startId) &&
+	is_numeric($startId)
+){
+	//По умолчанию на 1 уровень
+	$providerParams = 'parentIds='.$startId.'&depth='.(isset($depth) && is_numeric($depth) ? $depth : 1);
+}
 
 $ddMenuBuilder_params = new stdClass();
 
@@ -89,10 +103,15 @@ if (isset($showInMenuOnly)){$ddMenuBuilder_params->showInMenuOnly = $showInMenuO
 
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
+//Prepare provider params
+parse_str($providerParams, $providerParams);
+
 //Генерируем меню
-$result = $ddMenuBuilder->generate([
-	'`parent` = '.$startId
-], $depth);
+$result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
+	//Parent by default
+	'provider' => isset($provider) ? $provider : 'parent',
+	'providerParams' => $providerParams
+]));
 
 //Данные, которые необоходимо передать в шаблон
 if (isset($placeholders)){
