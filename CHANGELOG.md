@@ -1,4 +1,16 @@
 # ddMenuBuilder changelog
+## 1.11 (2016-11-25)
+* \* Attention! PHP >= 5.4 is required.
+* \* Attention! MODXEvo.library.ddTools >= 0.16.1 is required.
+* \+ Added an ability to pass ids of the selected documents to output.
+* \* Short array syntax is used because it's more convenient.
+* \* ddMenuBuilder Class:
+	* \* Unpublished docs will be used if needed.
+	* \* ddMenuBuilder->generate:
+		* \* Now takes custom “where” clauses instead of parent id.
+		* \* Refactoring parameters style.
+* \* Other minor changes.
+
 ## 1.10 (2016-09-12)
 * \+ Added an ability to pass additional data into a “tpls_outer” template (see the “placeholders” parameter).
 * \+ Added support of “@CODE:” keyword prefix in the snippet templates.

@@ -1,18 +1,18 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.0 (2015-12-28)
+ * @version 2.1 (2016-11-25)
  * 
- * @uses MODX Evo 1.0.15.
- * @uses The library modx.ddTools 0.15.
+ * @uses PHP >= 5.4.
+ * @uses MODXEvo >= 1.1.
+ * @uses MODXEvo.library.ddTools >= 0.16.1.
  * 
- * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2016 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
-if (!class_exists('ddMenuBuilder')){
 class ddMenuBuilder {
 	private $hereDocId;
-	private $templates = array(
+	private $templates = [
 		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemActive' => NULL,
@@ -21,13 +21,14 @@ class ddMenuBuilder {
 		'itemParentActive' => NULL,
 		'itemParentUnpub' => NULL,
 		'itemParentUnpubActive' => NULL
-	);
+	];
 	private $sortDir = 'ASC';
-	private $where = '';
+	private $where = ' AND `deleted` = 0';
+	private $showPublishedOnly = true;
 	
 	/**
 	 * __construct
-	 * @version 1.2.2 (2015-12-27)
+	 * @version 1.2.5 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -97,24 +98,32 @@ class ddMenuBuilder {
 		}
 		
 		//По умолчанию берем только опубликованные документы
-		if (!isset($params->showPublishedOnly) || $params->showPublishedOnly){
-			$this->where .= 'AND `published` = 1 ';
+		if (
+			!isset($params->showPublishedOnly) ||
+			$params->showPublishedOnly
+		){
+			$this->where .= ' AND `published` = 1 ';
+		}else{
+			$this->showPublishedOnly = false;
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
-		if (!isset($params->showInMenuOnly) || $params->showInMenuOnly){
-			$this->where .= 'AND `hidemenu` = 0';
+		if (
+			!isset($params->showInMenuOnly) ||
+			$params->showInMenuOnly
+		){
+			$this->where .= ' AND `hidemenu` = 0';
 		}
 	}
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.5 (2015-12-27)
+	 * @version 1.0.6 (2016-10-24)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
 	 * @param $params['docId'] {integer} — ID документа. @required
-	 * @param $params['docPublished'] {0; 1} — Признак публикации документа. @required
+	 * @param $params['docPublished'] {0|1} — Признак публикации документа. @required
 	 * @param $params['hasActiveChildren'] {boolean} — Есть ли у документа активные дочерние документы. @required
 	 * @param $params['hasChildrenOutput'] {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
@@ -159,8 +168,11 @@ class ddMenuBuilder {
 			}
 		//Если дочерних нет (отображаемых дочерних)
 		}else{
-			//Если опубликован
-			if ($params['docPublished']){
+			//Если опубликован или публикация не важна
+			if (
+				!$this->showPublishedOnly ||
+				$params['docPublished']
+			){
 				//Если текущий пункт является активным
 				if ($params['docId'] == $this->hereDocId){
 					//Шаблон активного пункта
@@ -180,32 +192,108 @@ class ddMenuBuilder {
 	}
 	
 	/**
+	 * prepareProviderParams
+	 * @version 0.1 (2016-10-24)
+	 * 
+	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
+	 * @param $params->providerParams {array_associative} — Parameters to be passed to the provider.
+	 * 
+	 * @return {array_associative}
+	 */
+	public function prepareProviderParams($params = []){
+		//Defaults
+		$params = (object) array_merge([
+			'provider' => 'parent'
+		], (array) $params);
+		
+		$result = [
+			'where' => [],
+			'depth' => 1
+		];
+		
+		switch ($params->provider){
+			case 'select':
+				//Required paremeter
+				if (
+					isset($params->providerParams['ids']) &&
+					!empty($params->providerParams['ids'])
+				){
+					if (is_array($params->providerParams['ids'])){
+						$params->providerParams['ids'] = implode(',', $params->providerParams['ids']);
+					}
+					
+					$result['where'][] = '`id` IN('.$params->providerParams['ids'].')';
+				}else{
+					//Never
+					$result['where'][] = '0 = 1';
+				}
+			break;
+			
+			default:
+			case 'parent':
+				//Defaults
+				$params->providerParams = array_merge([
+					'parentIds' => 0,
+					'depth' => 1
+				], $params->providerParams);
+				
+				if (is_array($params->providerParams['parentIds'])){
+					$params->providerParams['parentIds'] = implode(',', $params->providerParams['parentIds']);
+				}
+				
+				$result['where'][] = '`parent` IN('.$params->providerParams['parentIds'].')';
+				$result['depth'] = $params->providerParams['depth'];
+			break;
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * generate
-	 * @version 1.0.2 (2015-12-27)
+	 * @version 3.0.2 (2016-11-25)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $startId {integer} — Откуда брать. @required
-	 * @param $depth {integer} — Глубина поиска. Default: 1.
+	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params->where {array} — Условия выборки. @required
+	 * @param $params->where[i] {string} — Условие. @required
+	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * 
 	 * @return {array}
 	 */
-	public function generate($startId, $depth = 1){
+	public function generate($params){
+		//Defaults
+		$params = (object) array_merge([
+			'depth' => 1
+		], (array) $params);
+		
 		global $modx;
 		
-		$result = array(
+		$result = [
 			//Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
 			//Результирующая строка
 			'outputString' => ''
-		);
+		];
+		
+		$params->where = implode(' AND ', $params->where).$this->where;
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
-			SELECT `id`, `menutitle`, `pagetitle`, `published`, `isfolder`
-			FROM '.ddTools::$tables['site_content'].'
-			WHERE `parent` = '.$startId.' AND `deleted` = 0 '.$this->where.'
-			ORDER BY `menuindex` '.$this->sortDir.'
+			SELECT
+				`id`,
+				`menutitle`,
+				`pagetitle`,
+				`published`,
+				`isfolder`
+			FROM
+				'.ddTools::$tables['site_content'].'
+			WHERE
+				'.$params->where.'
+			ORDER BY
+				`menuindex` '.$this->sortDir.'
 		');
 		
 		//Если что-то есть
@@ -213,34 +301,39 @@ class ddMenuBuilder {
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = $modx->db->getRow($dbRes)){
 				//Пустые дети
-				$children = array(
+				$children = [
 					'hasActive' => false,
 					'outputString' => ''
-				);
+				];
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
 				
 				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
-					$children = self::generate($doc['id'], $depth - 1);
+					$children = self::generate([
+						'where' => [
+							'`parent` = '.$doc['id']
+						],
+						'depth' => $params->depth - 1
+					]);
 					
 					//Если надо выводить глубже
-					if ($depth > 1){
+					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
 					}
 				}
 				
-				//Если вывод вообще нужен (если «$depth» <= 0, значит этот вызов был только для выяснения активности)
-				if ($depth > 0){
+				//Если вывод вообще нужен (если «$params->depth» <= 0, значит этот вызов был только для выяснения активности)
+				if ($params->depth > 0){
 					//Получаем правильный шаблон для вывода текущего пункта
-					$tpl = $this->getOutputTemplate(array(
+					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
 						'hasActiveChildren' => $children['hasActive'],
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
-					));
+					]);
 					
 					//Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
@@ -250,17 +343,24 @@ class ddMenuBuilder {
 						//Подготовим к парсингу
 						$doc['children'] = $doc['children']['outputString'];
 						//Парсим
-						$result['outputString'] .= ddTools::parseText($tpl, $doc);
+						$result['outputString'] .= ddTools::parseText([
+							'text' => $tpl,
+							'data' => $doc
+						]);
 					}
 				}
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if ($doc['id'] == $this->hereDocId || $children['hasActive']){$result['hasActive'] = true;}
+				if (
+					$doc['id'] == $this->hereDocId ||
+					$children['hasActive']
+				){
+					$result['hasActive'] = true;
+				}
 			}
 		}
 		
 		return $result;
 	}
-}
 }
 ?>
