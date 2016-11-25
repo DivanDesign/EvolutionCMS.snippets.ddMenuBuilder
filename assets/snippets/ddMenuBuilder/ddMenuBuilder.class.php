@@ -1,13 +1,13 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.0 (2015-12-28)
+ * @version 2.1 (2016-11-25)
  * 
  * @uses PHP >= 5.4.
- * @uses MODX Evo 1.0.15.
- * @uses The library modx.ddTools 0.16.1.
+ * @uses MODXEvo >= 1.1.
+ * @uses MODXEvo.library.ddTools >= 0.16.1.
  * 
- * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2016 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
@@ -123,7 +123,7 @@ class ddMenuBuilder {
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
 	 * @param $params['docId'] {integer} — ID документа. @required
-	 * @param $params['docPublished'] {0; 1} — Признак публикации документа. @required
+	 * @param $params['docPublished'] {0|1} — Признак публикации документа. @required
 	 * @param $params['hasActiveChildren'] {boolean} — Есть ли у документа активные дочерние документы. @required
 	 * @param $params['hasChildrenOutput'] {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
