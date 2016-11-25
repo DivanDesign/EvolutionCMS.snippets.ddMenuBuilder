@@ -10,7 +10,6 @@
  * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
-if (!class_exists('ddMenuBuilder')){
 class ddMenuBuilder {
 	private $hereDocId;
 	private $templates = [
@@ -360,6 +359,5 @@ class ddMenuBuilder {
 		
 		return $result;
 	}
-}
 }
 ?>
