@@ -253,18 +253,18 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.0 (2016-10-24)
+	 * @version 3.0.1 (2016-10-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $params {stdClass|array: associative} — The object of params. @required
+	 * @param $params {stdClass|array_associative} — The object of params. @required
 	 * @param $params->where {array} — Условия выборки. @required
 	 * @param $params->where[i] {string} — Условие. @required
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * 
 	 * @return {array}
 	 */
-	public function generate($params = []){
+	public function generate($params){
 		//Defaults
 		$params = (object) array_merge([
 			'depth' => 1
