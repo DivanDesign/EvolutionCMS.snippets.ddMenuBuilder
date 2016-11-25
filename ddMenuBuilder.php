@@ -7,7 +7,7 @@
  * 
  * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
- * @uses The library modx.ddTools >= 0.15.
+ * @uses The library modx.ddTools >= 0.16.1.
  * 
  * Data provider parameters:
  * @param $provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -130,5 +130,8 @@ if (
 
 $placeholders['children'] = $result['outputString'];
 
-return ddTools::parseText($tpls_outer, $placeholders, '[+', '+]');
+return ddTools::parseText([
+	'text' => $tpls_outer,
+	'data' => $placeholders
+]);
 ?>

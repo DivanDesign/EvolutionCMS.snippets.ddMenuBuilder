@@ -5,7 +5,7 @@
  * 
  * @uses PHP >= 5.4.
  * @uses MODX Evo 1.0.15.
- * @uses The library modx.ddTools 0.15.
+ * @uses The library modx.ddTools 0.16.1.
  * 
  * @copyright 2009–2015 DivanDesign {@link http://www.DivanDesign.biz }
  */
@@ -252,7 +252,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.0.1 (2016-10-24)
+	 * @version 3.0.2 (2016-11-25)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -343,7 +343,10 @@ class ddMenuBuilder {
 						//Подготовим к парсингу
 						$doc['children'] = $doc['children']['outputString'];
 						//Парсим
-						$result['outputString'] .= ddTools::parseText($tpl, $doc);
+						$result['outputString'] .= ddTools::parseText([
+							'text' => $tpl,
+							'data' => $doc
+						]);
 					}
 				}
 				
