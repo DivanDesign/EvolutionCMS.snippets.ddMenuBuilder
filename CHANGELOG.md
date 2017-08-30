@@ -1,5 +1,10 @@
 # ddMenuBuilder changelog
-## 1.11 (2016-11-25)
+## Version 1.12 (2017-08-30)
+* \* Menu item active status is no logner depends on the “show_in_menu” children flag.
+* \+ Added JSON format support for the “providerParams” and “placeholders” parameters.
+* \* Attention! MODXEvo.library.ddTools >= 0.20 is required.
+
+## Version 1.11 (2016-11-25)
 * \* Attention! PHP >= 5.4 is required.
 * \* Attention! MODXEvo.library.ddTools >= 0.16.1 is required.
 * \+ Added an ability to pass ids of the selected documents to output.
@@ -11,12 +16,12 @@
 		* \* Refactoring parameters style.
 * \* Other minor changes.
 
-## 1.10 (2016-09-12)
+## Version 1.10 (2016-09-12)
 * \+ Added an ability to pass additional data into a “tpls_outer” template (see the “placeholders” parameter).
 * \+ Added support of “@CODE:” keyword prefix in the snippet templates.
 * \* Attention! Snippet now requires MODXEvo >= 1.1.
 
-## 1.9 (2015-12-28)
+## Version 1.9 (2015-12-28)
 * \* Внимание! Используется «modx.ddTools» 0.15.
 * \* ddMenuBuilder snippet:
 	* \* Вместо прямого обращения к полю «$modx->config» используется метод «$modx->getConfig».
@@ -47,7 +52,7 @@
 	* \* Файл «assets/snippets/ddMenuBuilder/ddmenubuilder.class.php» переименован в «assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php».
 	* \* Внимание! Используется «modx.ddTools» 1.0.15.
 
-## 1.8 (2015-02-05)
+## Version 1.8 (2015-02-05)
 * \* ddMenuBuilder snippet:
 	* \* Плэйсхолдер «[+wrapper+]» во всех шаблонах заменён на «[+children+]».
 * \* ddMenuBuilder class:
@@ -74,7 +79,7 @@
 		* \* Удалена переменная «$sql».
 * \* Удалены устаревшие комментарии, исправлено оформление кода и прочие незначительные изменения.
 
-## 1.7 (2012-10-17)
+## Version 1.7 (2012-10-17)
 * \+ «Первая» версия.
 
 <style>ul{list-style:none;}</style>

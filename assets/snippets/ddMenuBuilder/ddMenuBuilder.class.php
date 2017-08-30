@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.1 (2016-11-25)
+ * @version 2.1.2 (2017-08-30)
  * 
  * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
@@ -23,12 +23,14 @@ class ddMenuBuilder {
 		'itemParentUnpubActive' => NULL
 	];
 	private $sortDir = 'ASC';
-	private $where = ' AND `deleted` = 0';
+	private $where = [
+		'deleted' => '`deleted` = 0'
+	];
 	private $showPublishedOnly = true;
 	
 	/**
 	 * __construct
-	 * @version 1.2.5 (2016-10-24)
+	 * @version 1.2.6 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -102,7 +104,7 @@ class ddMenuBuilder {
 			!isset($params->showPublishedOnly) ||
 			$params->showPublishedOnly
 		){
-			$this->where .= ' AND `published` = 1 ';
+			$this->where['published'] = '`published` = 1';
 		}else{
 			$this->showPublishedOnly = false;
 		}
@@ -112,38 +114,41 @@ class ddMenuBuilder {
 			!isset($params->showInMenuOnly) ||
 			$params->showInMenuOnly
 		){
-			$this->where .= ' AND `hidemenu` = 0';
+			$this->where['hidemenu'] = '`hidemenu` = 0';
 		}
 	}
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.6 (2016-10-24)
+	 * @version 1.1 (2017-08-30)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params['docId'] {integer} — ID документа. @required
-	 * @param $params['docPublished'] {0|1} — Признак публикации документа. @required
-	 * @param $params['hasActiveChildren'] {boolean} — Есть ли у документа активные дочерние документы. @required
-	 * @param $params['hasChildrenOutput'] {boolean} — Будут ли у документа выводиться дочерние. @required
+	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params->docId {integer} — ID документа. @required
+	 * @param $params->docPublished {0|1} — Признак публикации документа. @required
+	 * @param $params->hasActiveChildren {boolean} — Есть ли у документа активные дочерние документы. @required
+	 * @param $params->hasChildrenOutput {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
 	 * @return {string} — Шаблон для вывода.
 	 */
 	private function getOutputTemplate($params){
+		$params = (object) $params;
+		
 		$result = '';
 		
 		//Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
-		if ($params['hasChildrenOutput']){
+		if ($params->hasChildrenOutput){
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
-			if ($params['docPublished']){
+			if ($params->docPublished){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->hereDocId){
+				if ($params->docId == $this->hereDocId){
 					//Шаблон активного родительского пункта меню
 					$result = $this->templates['itemParentHere'];
 				//Если не не активный
 				}else{
 					//Если один из дочерних был активным
-					if ($params['hasActiveChildren']){
+					if ($params->hasActiveChildren){
 						//Сообщаем, что что-то активное есть
 						//Шаблон родительского пункта меню, когда активный один из дочерних
 						$result = $this->templates['itemParentActive'];
@@ -156,7 +161,7 @@ class ddMenuBuilder {
 			//Если не опубликован
 			}else{
 				//Если один из дочерних был активным
-				if ($params['hasActiveChildren']){
+				if ($params->hasActiveChildren){
 					//Сообщаем, что что-то активное есть
 					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
 					$result = $this->templates['itemParentUnpubActive'];
@@ -171,14 +176,14 @@ class ddMenuBuilder {
 			//Если опубликован или публикация не важна
 			if (
 				!$this->showPublishedOnly ||
-				$params['docPublished']
+				$params->docPublished
 			){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->hereDocId){
+				if ($params->docId == $this->hereDocId){
 					//Шаблон активного пункта
 					$result = $this->templates['itemHere'];
 				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-				}else if($params['hasActiveChildren']){
+				}else if($params->hasActiveChildren){
 					$result = $this->templates['itemActive'];
 				//Если не не активный
 				}else{
@@ -252,7 +257,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.0.2 (2016-11-25)
+	 * @version 3.0.3 (2017-08-30)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -278,7 +283,7 @@ class ddMenuBuilder {
 			'outputString' => ''
 		];
 		
-		$params->where = implode(' AND ', $params->where).$this->where;
+		$params->where = implode(' AND ', array_merge($this->where, $params->where));
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -311,9 +316,11 @@ class ddMenuBuilder {
 				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
-					$children = self::generate([
+					$children = $this->generate([
 						'where' => [
-							'`parent` = '.$doc['id']
+							'parent' => '`parent` = '.$doc['id'],
+							//Any hidemenu
+							'hidemenu' => '`hidemenu` != 2'
 						],
 						'depth' => $params->depth - 1
 					]);
