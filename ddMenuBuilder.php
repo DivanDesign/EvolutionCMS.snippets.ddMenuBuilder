@@ -1,7 +1,7 @@
 <?php
 /**
- * ddMenuBuilder.php
- * @version 1.11 (2016-11-25)
+ * ddMenuBuilder
+ * @version 1.12 (2017-08-30)
  * 
  * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
  * 
@@ -49,9 +49,9 @@
  * @example &placeholders=`{"pladeholder1": "value1", "pagetitle", "My awesome pagetitle!"}`.
  * @example &placeholders=`pladeholder1=value1&pagetitle=My awesome pagetitle!`.
  * 
- * @link http://code.divandesign.biz/modx/ddmenubuilder/1.11
+ * @link http://code.divandesign.biz/modx/ddmenubuilder/1.12
  * 
- * @copyright 2009–2016 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2017 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем класс (ddTools подключится там)
