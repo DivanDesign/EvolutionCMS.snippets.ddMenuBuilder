@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.1.1 (2017-08-30)
+ * @version 2.1.2 (2017-08-30)
  * 
  * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
@@ -120,32 +120,35 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.0.6 (2016-10-24)
+	 * @version 1.1 (2017-08-30)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params['docId'] {integer} — ID документа. @required
-	 * @param $params['docPublished'] {0|1} — Признак публикации документа. @required
-	 * @param $params['hasActiveChildren'] {boolean} — Есть ли у документа активные дочерние документы. @required
-	 * @param $params['hasChildrenOutput'] {boolean} — Будут ли у документа выводиться дочерние. @required
+	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params->docId {integer} — ID документа. @required
+	 * @param $params->docPublished {0|1} — Признак публикации документа. @required
+	 * @param $params->hasActiveChildren {boolean} — Есть ли у документа активные дочерние документы. @required
+	 * @param $params->hasChildrenOutput {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
 	 * @return {string} — Шаблон для вывода.
 	 */
 	private function getOutputTemplate($params){
+		$params = (object) $params;
+		
 		$result = '';
 		
 		//Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
-		if ($params['hasChildrenOutput']){
+		if ($params->hasChildrenOutput){
 			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
-			if ($params['docPublished']){
+			if ($params->docPublished){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->hereDocId){
+				if ($params->docId == $this->hereDocId){
 					//Шаблон активного родительского пункта меню
 					$result = $this->templates['itemParentHere'];
 				//Если не не активный
 				}else{
 					//Если один из дочерних был активным
-					if ($params['hasActiveChildren']){
+					if ($params->hasActiveChildren){
 						//Сообщаем, что что-то активное есть
 						//Шаблон родительского пункта меню, когда активный один из дочерних
 						$result = $this->templates['itemParentActive'];
@@ -158,7 +161,7 @@ class ddMenuBuilder {
 			//Если не опубликован
 			}else{
 				//Если один из дочерних был активным
-				if ($params['hasActiveChildren']){
+				if ($params->hasActiveChildren){
 					//Сообщаем, что что-то активное есть
 					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
 					$result = $this->templates['itemParentUnpubActive'];
@@ -173,14 +176,14 @@ class ddMenuBuilder {
 			//Если опубликован или публикация не важна
 			if (
 				!$this->showPublishedOnly ||
-				$params['docPublished']
+				$params->docPublished
 			){
 				//Если текущий пункт является активным
-				if ($params['docId'] == $this->hereDocId){
+				if ($params->docId == $this->hereDocId){
 					//Шаблон активного пункта
 					$result = $this->templates['itemHere'];
 				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-				}else if($params['hasActiveChildren']){
+				}else if($params->hasActiveChildren){
 					$result = $this->templates['itemActive'];
 				//Если не не активный
 				}else{
