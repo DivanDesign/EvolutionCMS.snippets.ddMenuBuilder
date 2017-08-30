@@ -7,19 +7,22 @@
  * 
  * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
- * @uses MODXEvo.library.ddTools >= 0.16.1.
+ * @uses MODXEvo.library.ddTools >= 0.20.
  * 
  * Data provider parameters:
  * @param $provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
- * @param $providerParams {string_query} — Parameters to be passed to the provider. The parameter must be set as a query string,
+ * @param $providerParams {stirng_json|string_queryFormated} — Parameters to be passed to the provider. The parameter must be set as JSON (https://en.wikipedia.org/wiki/JSON) or Query string (https://en.wikipedia.org/wiki/Query_string).
  * When $provider == 'parent' =>
  * @param $providerParams['parentIds'] {array|string_commaSepareted} — Parent IDs — the starting points for the menu. Specify '0' to start from the site root. Default: '0'.
  * @param $providerParams['parentIds'][i] {integer_documentID} — Parent ID. @required
  * @param $providerParams['depth'] {integer} —  The depth of documents to build the menu. Default: 1.
- * e.g. $providerParams = 'parentId=1&depth=2'.
+ * @example &providerParams=`{"parentId": 1, "depth": 2}`.
+ * @example &providerParams=`parentId=1&depth=2`.
  * When $provider == 'select' =>
  * @param $providerParams['ids'] {array|string_commaSepareted} — Document IDs. @required
  * @param $providerParams['ids'][i] {integer_documentID} — Document ID. @required
+ * @example &providerParams=`{"ids": [1, 2, 3]}`.
+ * @example &providerParams=`ids=1,2,3`.
  * 
  * General parameters:
  * @param $sortDir {'ASC'|'DESC'} — The sorting direction (by “menuindex” field). Default: 'ASC'.
@@ -42,7 +45,9 @@
  * 
  * @param $tpls_outer {string_chunkName|string} — Wrapper template. Available placeholders: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
- * @param $placeholders {string_query} — Additional data as query string has to be passed into “tpls_outer”. E. g. “pladeholder1=value1&pagetitle=My awesome pagetitle!”. Default: —.
+ * @param $placeholders {stirng_json|string_queryFormated} — Additional data as query string has to be passed into “tpls_outer”. The parameter must be set as JSON (https://en.wikipedia.org/wiki/JSON) or Query string (https://en.wikipedia.org/wiki/Query_string). Default: —.
+ * @example &placeholders=`{"pladeholder1": "value1", "pagetitle", "My awesome pagetitle!"}`.
+ * @example &placeholders=`pladeholder1=value1&pagetitle=My awesome pagetitle!`.
  * 
  * @link http://code.divandesign.biz/modx/ddmenubuilder/1.11
  * 
@@ -71,7 +76,10 @@ if (
 	is_numeric($startId)
 ){
 	//По умолчанию на 1 уровень
-	$providerParams = 'parentIds='.$startId.'&depth='.(isset($depth) && is_numeric($depth) ? $depth : 1);
+	$providerParams = [
+		'parentIds' => $startId,
+		'depth' => (isset($depth) && is_numeric($depth) ? $depth : 1)
+	];
 }
 
 $ddMenuBuilder_params = new stdClass();
@@ -104,7 +112,7 @@ if (isset($showInMenuOnly)){$ddMenuBuilder_params->showInMenuOnly = $showInMenuO
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
 //Prepare provider params
-parse_str($providerParams, $providerParams);
+$providerParams = ddTools::encodedStringToArray($providerParams);
 
 //Генерируем меню
 $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
@@ -114,17 +122,9 @@ $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
 ]));
 
 //Данные, которые необоходимо передать в шаблон
-if (isset($placeholders)){
-	//Parse a query string
-	parse_str($placeholders, $placeholders);
-	//Unfold for arrays support (e. g. “some[a]=one&some[b]=two” => “[+some.a+]”, “[+some.b+]”; “some[]=one&some[]=two” => “[+some.0+]”, “[some.1]”)
-	$placeholders = ddTools::unfoldArray($placeholders);
-}
-//Корректно инициализируем при необходимости
-if (
-	!isset($placeholders) ||
-	!is_array($placeholders)
-){
+if (!empty($placeholders)){
+	$placeholders = ddTools::encodedStringToArray($placeholders);
+}else{
 	$placeholders = [];
 }
 
