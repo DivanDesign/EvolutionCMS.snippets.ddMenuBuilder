@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.1 (2016-11-25)
+ * @version 2.1.1 (2017-08-30)
  * 
  * @uses PHP >= 5.4.
  * @uses MODXEvo >= 1.1.
@@ -23,12 +23,14 @@ class ddMenuBuilder {
 		'itemParentUnpubActive' => NULL
 	];
 	private $sortDir = 'ASC';
-	private $where = ' AND `deleted` = 0';
+	private $where = [
+		'deleted' => '`deleted` = 0'
+	];
 	private $showPublishedOnly = true;
 	
 	/**
 	 * __construct
-	 * @version 1.2.5 (2016-10-24)
+	 * @version 1.2.6 (2016-10-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -102,7 +104,7 @@ class ddMenuBuilder {
 			!isset($params->showPublishedOnly) ||
 			$params->showPublishedOnly
 		){
-			$this->where .= ' AND `published` = 1 ';
+			$this->where['published'] = '`published` = 1';
 		}else{
 			$this->showPublishedOnly = false;
 		}
@@ -112,7 +114,7 @@ class ddMenuBuilder {
 			!isset($params->showInMenuOnly) ||
 			$params->showInMenuOnly
 		){
-			$this->where .= ' AND `hidemenu` = 0';
+			$this->where['hidemenu'] = '`hidemenu` = 0';
 		}
 	}
 	
@@ -252,7 +254,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.0.2 (2016-11-25)
+	 * @version 3.0.3 (2017-08-30)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -278,7 +280,7 @@ class ddMenuBuilder {
 			'outputString' => ''
 		];
 		
-		$params->where = implode(' AND ', $params->where).$this->where;
+		$params->where = implode(' AND ', array_merge($this->where, $params->where));
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -311,9 +313,11 @@ class ddMenuBuilder {
 				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
-					$children = self::generate([
+					$children = $this->generate([
 						'where' => [
-							'`parent` = '.$doc['id']
+							'parent' => '`parent` = '.$doc['id'],
+							//Any hidemenu
+							'hidemenu' => '`hidemenu` != 2'
 						],
 						'depth' => $params->depth - 1
 					]);
