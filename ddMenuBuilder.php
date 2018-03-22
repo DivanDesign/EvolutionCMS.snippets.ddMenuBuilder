@@ -76,10 +76,10 @@ if (
 	is_numeric($startId)
 ){
 	//По умолчанию на 1 уровень
-	$providerParams = [
-		'parentIds' => $startId,
-		'depth' => (isset($depth) && is_numeric($depth) ? $depth : 1)
-	];
+	$providerParams = '{
+		"parentIds": "'.$startId.'",
+		"depth": '.(isset($depth) && is_numeric($depth) ? $depth : 1).'
+	}';
 }
 
 $ddMenuBuilder_params = new stdClass();
