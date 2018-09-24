@@ -12,6 +12,7 @@
 
 class ddMenuBuilder {
 	private $hereDocId;
+	private $hereDoc_parents = [];
 	private $templates = [
 		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
@@ -30,7 +31,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.2.6 (2016-10-24)
+	 * @version 1.3 (2018-09-24)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -62,6 +63,17 @@ class ddMenuBuilder {
 		}else{
 			$this->hereDocId = $modx->documentIdentifier;
 		}
+		
+		//Получим все id родителей текущего документа.
+		$this->hereDoc_parents = [$this->hereDocId];
+		$hereDoc_parentId = $this->hereDocId;
+		
+		while ($hereDoc_parentId > 0){
+			$this->hereDoc_parents[] = $hereDoc_parentId = $modx->getParent($hereDoc_parentId)['id'];
+		}
+		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents );
+		//Не null, а 0
+		$this->hereDoc_parents[0] = 0;
 		
 		//Если шаблоны переданы
 		if (isset($params->templates)){
@@ -257,7 +269,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.0.3 (2017-08-30)
+	 * @version 3.1 (2018-09-24)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -270,9 +282,7 @@ class ddMenuBuilder {
 	 */
 	public function generate($params){
 		//Defaults
-		$params = (object) array_merge([
-			'depth' => 1
-		], (array) $params);
+		$params = (object) $params;
 		
 		global $modx;
 		
@@ -313,20 +323,19 @@ class ddMenuBuilder {
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
 				
-				//Если это папка (т.е., могут быть дочерние)
-				if ($doc['isfolder']){
-					//Получаем детей (вне зависимости от того, нужно ли их выводить)
-					$children = $this->generate([
-						'where' => [
-							'parent' => '`parent` = '.$doc['id'],
-							//Any hidemenu
-							'hidemenu' => '`hidemenu` != 2'
-						],
-						'depth' => $params->depth - 1
-					]);
-					
-					//Если надо выводить глубже
-					if ($params->depth > 1){
+				//Если надо выводить глубже
+				if ($params->depth > 1){
+					//Если это папка (т.е., могут быть дочерние)
+					if ($doc['isfolder']){
+						//Получаем детей (вне зависимости от того, нужно ли их выводить)
+						$children = $this->generate([
+							'where' => [
+								'parent' => '`parent` = '.$doc['id'],
+								//Any hidemenu
+								'hidemenu' => '`hidemenu` != 2'
+							],
+							'depth' => $params->depth - 1
+						]);
 						//Выводим детей
 						$doc['children'] = $children;
 					}
@@ -334,11 +343,11 @@ class ddMenuBuilder {
 				
 				//Если вывод вообще нужен (если «$params->depth» <= 0, значит этот вызов был только для выяснения активности)
 				if ($params->depth > 0){
-					//Получаем правильный шаблон для вывода текущего пункта
+					//Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
-						'hasActiveChildren' => $children['hasActive'],
+						'hasActiveChildren' => in_array($doc['id'], $this->hereDoc_parents),
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
 					]);
 					
@@ -355,14 +364,6 @@ class ddMenuBuilder {
 							'data' => $doc
 						]);
 					}
-				}
-				
-				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
-				if (
-					$doc['id'] == $this->hereDocId ||
-					$children['hasActive']
-				){
-					$result['hasActive'] = true;
 				}
 			}
 		}
