@@ -3,7 +3,7 @@
  * modx ddMenuBuilder class
  * @version 2.1.2 (2017-08-30)
  * 
- * @uses PHP >= 5.4.
+ * @uses PHP >= 5.6.
  * @uses MODXEvo >= 1.1.
  * @uses MODXEvo.library.ddTools >= 0.16.1.
  * 

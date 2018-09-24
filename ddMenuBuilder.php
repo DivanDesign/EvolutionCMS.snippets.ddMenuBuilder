@@ -5,7 +5,7 @@
  * 
  * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
  * 
- * @uses PHP >= 5.4.
+ * @uses PHP >= 5.6.
  * @uses MODXEvo >= 1.1.
  * @uses MODXEvo.library.ddTools >= 0.20.
  * 
