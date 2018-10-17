@@ -1,11 +1,11 @@
 <?php
 /**
  * ddMenuBuilder
- * @version 1.12 (2017-08-30)
+ * @version 1.13b (2018-10-17)
  * 
  * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
  * 
- * @uses PHP >= 5.4.
+ * @uses PHP >= 5.6.
  * @uses MODXEvo >= 1.1.
  * @uses MODXEvo.library.ddTools >= 0.20.
  * 
@@ -49,9 +49,9 @@
  * @example &placeholders=`{"pladeholder1": "value1", "pagetitle", "My awesome pagetitle!"}`.
  * @example &placeholders=`pladeholder1=value1&pagetitle=My awesome pagetitle!`.
  * 
- * @link http://code.divandesign.biz/modx/ddmenubuilder/1.12
+ * @link http://code.divandesign.biz/modx/ddmenubuilder/1.13b
  * 
- * @copyright 2009–2017 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2018 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем класс (ddTools подключится там)
@@ -76,10 +76,10 @@ if (
 	is_numeric($startId)
 ){
 	//По умолчанию на 1 уровень
-	$providerParams = [
-		'parentIds' => $startId,
-		'depth' => (isset($depth) && is_numeric($depth) ? $depth : 1)
-	];
+	$providerParams = '{
+		"parentIds": "'.$startId.'",
+		"depth": '.(isset($depth) && is_numeric($depth) ? $depth : 1).'
+	}';
 }
 
 $ddMenuBuilder_params = new stdClass();
