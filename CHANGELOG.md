@@ -1,4 +1,14 @@
 # ddMenuBuilder changelog
+## Version 1.13b (2018-10-17)
+* \* Attention! PHP >= 5.6 is required.
+* \* ddMenuBuilder snippet:
+	* \* Wrong type of “providerParams” was fixed.
+* \* ddMenuBuilder class:
+	* \* Small refactoring.
+	* \* Optimization:
+		* \- ddMenuBuilder->generate: Redudnand “array_merge” removed,
+		* \- ddMenuBuilder->generate: Убран проход по всем документам в дереве который определял где находится активный документ.
+
 ## Version 1.12 (2017-08-30)
 * \* Menu item active status is no logner depends on the “show_in_menu” children flag.
 * \+ Added JSON format support for the “providerParams” and “placeholders” parameters.
