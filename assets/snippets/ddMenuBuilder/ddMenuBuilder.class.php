@@ -1,11 +1,11 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.2 (2019-06-08)
+ * @version 2.2.1 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.20 {@link http://code.divandesign.biz/modx/ddtools }
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
  * 
  * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
@@ -33,7 +33,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.3.1 (2019-06-08)
+	 * @version 1.3.2 (2019-06-08)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -48,7 +48,7 @@ class ddMenuBuilder {
 	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
 	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
 	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
-	 * @param $params->hereDocId {integer} — ID текущего документа. Default: $modx->documentIdentifier.
+	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
 	public function __construct(stdClass $params = NULL){
 		global $modx;
@@ -63,7 +63,7 @@ class ddMenuBuilder {
 		if (isset($params->hereDocId)){
 			$this->hereDocId = $params->hereDocId;
 		}else{
-			$this->hereDocId = $modx->documentIdentifier;
+			$this->hereDocId = \ddTools::$modx->documentIdentifier;
 		}
 		
 		//Получим все id родителей текущего документа.
@@ -71,7 +71,7 @@ class ddMenuBuilder {
 		$hereDoc_parentId = $this->hereDocId;
 		
 		while ($hereDoc_parentId > 0){
-			$this->hereDoc_parents[] = $hereDoc_parentId = $modx->getParent($hereDoc_parentId)['id'];
+			$this->hereDoc_parents[] = $hereDoc_parentId = \ddTools::$modx->getParent($hereDoc_parentId)['id'];
 		}
 		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents);
 		//Не null, а 0
@@ -286,7 +286,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.1.1 (2019-06-08)
+	 * @version 3.1.2 (2019-06-08)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -300,8 +300,6 @@ class ddMenuBuilder {
 	public function generate($params){
 		//Defaults
 		$params = (object) $params;
-		
-		global $modx;
 		
 		$result = [
 			//Считаем, что активных пунктов по дефолту нет
@@ -319,7 +317,7 @@ class ddMenuBuilder {
 		);
 		
 		//Получаем все пункты одного уровня
-		$dbRes = $modx->db->query('
+		$dbRes = \ddTools::$modx->db->query('
 			SELECT
 				`id`,
 				`menutitle`,
@@ -335,9 +333,9 @@ class ddMenuBuilder {
 		');
 		
 		//Если что-то есть
-		if ($modx->db->getRecordCount($dbRes) > 0){
+		if (\ddTools::$modx->db->getRecordCount($dbRes) > 0){
 			//Проходимся по всем пунктам текущего уровня
-			while ($doc = $modx->db->getRow($dbRes)){
+			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
 				//Пустые дети
 				$children = [
 					'hasActive' => false,
