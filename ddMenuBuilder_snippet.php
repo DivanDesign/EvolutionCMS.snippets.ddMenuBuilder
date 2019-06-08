@@ -35,6 +35,9 @@
  * @param $templates['itemHere'] {string_chunkName|string} — The menu item template for the current document. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
  * @param $templates['itemActive'] {string_chunkName|string} — The menu item template for a document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $templates['itemHere'].
  * 
+ * @param $templates['itemUnpub'] {string_chunkName|string} — The menu item template for unpublished document. Default: $templates['item'].
+ * @param $templates['itemUnpubActive'] {string_chunkName|string} — The menu item template for unpublished document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $templates['itemActive'].
+ * 
  * @param $templates['itemParent'] {string_chunkName|string} — The menu item template for documents which has a children displayed in menu. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
  * @param $templates['itemParentHere'] {string_chunkName|string} — The menu item template for the current document when it has children displayed in menu. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
  * @param $templates['itemParentActive'] {string_chunkName|string} — The menu item template for a document which has the current document as one of the children. Default: $templates['itemParentHere'].

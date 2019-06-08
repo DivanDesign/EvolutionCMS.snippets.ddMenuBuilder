@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.4.2 (2019-06-08)
+ * @version 2.5 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -17,6 +17,8 @@ class ddMenuBuilder {
 			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 			'itemActive' => NULL,
+			'itemUnpub' => NULL,
+			'itemUnpubActive' => NULL,
 			'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
 			'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
 			'itemParentActive' => NULL,
@@ -33,7 +35,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.6.1 (2019-06-08)
+	 * @version 1.7 (2019-06-08)
 	 * 
 	 * @param $params {array_associative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -104,6 +106,16 @@ class ddMenuBuilder {
 			$this->templates['itemActive'] = $this->templates['itemHere'];
 		}
 		
+		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		if (is_null($this->templates['itemUnpub'])){
+			$this->templates['itemUnpub'] = $this->templates['item'];
+		}
+		
+		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		if (is_null($this->templates['itemUnpubActive'])){
+			$this->templates['itemUnpubActive'] = $this->templates['itemActive'];
+		}
+		
 		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
 		if (is_null($this->templates['itemParentActive'])){
 			$this->templates['itemParentActive'] = $this->templates['itemParentHere'];
@@ -137,7 +149,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.2 (2017-08-30)
+	 * @version 1.3 (2019-06-08)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -205,17 +217,28 @@ class ddMenuBuilder {
 					!$this->showPublishedOnly
 				)
 			){
-				//Если текущий пункт является активным
-				if ($params->docId == $this->hereDocId){
-					//Шаблон активного пункта
-					$result = $this->templates['itemHere'];
-				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-				}else if($params->hasActiveChildren){
-					$result = $this->templates['itemActive'];
-				//Если не не активный
+				//Если опубликован, значит надо использовать какой-то опубликованный шаблон
+				if ($params->docPublished){
+					//Если текущий пункт является активным
+					if ($params->docId == $this->hereDocId){
+						//Шаблон активного пункта
+						$result = $this->templates['itemHere'];
+					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
+					}else if($params->hasActiveChildren){
+						$result = $this->templates['itemActive'];
+					//Если не не активный
+					}else{
+						//Шаблон пункта меню
+						$result = $this->templates['item'];
+					}
 				}else{
-					//Шаблон пункта меню
-					$result = $this->templates['item'];
+					//Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
+					if ($params->hasActiveChildren){
+						$result = $this->templates['itemUnpubActive'];
+					}else{
+						//Шаблон неопубликованного пункта меню
+						$result = $this->templates['itemUnpub'];
+					}
 				}
 			}
 		}
