@@ -1,37 +1,39 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.1.2 (2017-08-30)
+ * @version 2.2 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
- * @uses MODXEvo >= 1.1.
- * @uses MODXEvo.library.ddTools >= 0.16.1.
+ * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.20 {@link http://code.divandesign.biz/modx/ddtools }
  * 
- * @copyright 2009–2016 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
-	private $hereDocId;
-	private $hereDoc_parents = [];
-	private $templates = [
-		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
-		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
-		'itemActive' => NULL,
-		'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
-		'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
-		'itemParentActive' => NULL,
-		'itemParentUnpub' => NULL,
-		'itemParentUnpubActive' => NULL
-	];
-	private $sortDir = 'ASC';
-	private $where = [
-		'deleted' => '`deleted` = 0'
-	];
-	private $showPublishedOnly = true;
+	private
+		$hereDocId,
+		$hereDoc_parents = [],
+		$templates = [
+			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+			'itemActive' => NULL,
+			'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+			'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+			'itemParentActive' => NULL,
+			'itemParentUnpub' => NULL,
+			'itemParentUnpubActive' => NULL
+		],
+		$sortDir = 'ASC',
+		$where = [
+			'deleted' => '`deleted` = 0'
+		],
+		$showPublishedOnly = true
+	;
 	
 	/**
 	 * __construct
-	 * @version 1.3 (2018-09-24)
+	 * @version 1.3.1 (2019-06-08)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -51,8 +53,8 @@ class ddMenuBuilder {
 	public function __construct(stdClass $params = NULL){
 		global $modx;
 		
-		//Подключаем modx.ddTools
-		require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.class.php';
+		//Include (MODX)EvolutionCMS.libraries.ddTools
+		require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 		
 		//Параметры могут быть не переданы
 		if ((is_null($params))){$params = new stdClass();}
@@ -71,14 +73,17 @@ class ddMenuBuilder {
 		while ($hereDoc_parentId > 0){
 			$this->hereDoc_parents[] = $hereDoc_parentId = $modx->getParent($hereDoc_parentId)['id'];
 		}
-		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents );
+		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents);
 		//Не null, а 0
 		$this->hereDoc_parents[0] = 0;
 		
 		//Если шаблоны переданы
 		if (isset($params->templates)){
 			//Перебираем шаблоны объекта
-			foreach ($this->templates as $key => $val){
+			foreach (
+				$this->templates as
+				$key => $val
+			){
 				//Если шаблон передан — сохраняем
 				if (isset($params->templates[$key])){
 					$this->templates[$key] = $params->templates[$key];
@@ -210,7 +215,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.1 (2016-10-24)
+	 * @version 0.1.1 (2019-06-08)
 	 * 
 	 * @param $params {stdClass|array_associative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -220,9 +225,12 @@ class ddMenuBuilder {
 	 */
 	public function prepareProviderParams($params = []){
 		//Defaults
-		$params = (object) array_merge([
-			'provider' => 'parent'
-		], (array) $params);
+		$params = (object) array_merge(
+			[
+				'provider' => 'parent'
+			],
+			(array) $params
+		);
 		
 		$result = [
 			'where' => [],
@@ -237,10 +245,13 @@ class ddMenuBuilder {
 					!empty($params->providerParams['ids'])
 				){
 					if (is_array($params->providerParams['ids'])){
-						$params->providerParams['ids'] = implode(',', $params->providerParams['ids']);
+						$params->providerParams['ids'] = implode(
+							',',
+							$params->providerParams['ids']
+						);
 					}
 					
-					$result['where'][] = '`id` IN('.$params->providerParams['ids'].')';
+					$result['where'][] = '`id` IN(' . $params->providerParams['ids'] . ')';
 				}else{
 					//Never
 					$result['where'][] = '0 = 1';
@@ -250,16 +261,22 @@ class ddMenuBuilder {
 			default:
 			case 'parent':
 				//Defaults
-				$params->providerParams = array_merge([
-					'parentIds' => 0,
-					'depth' => 1
-				], $params->providerParams);
+				$params->providerParams = array_merge(
+					[
+						'parentIds' => 0,
+						'depth' => 1
+					],
+					$params->providerParams
+				);
 				
 				if (is_array($params->providerParams['parentIds'])){
-					$params->providerParams['parentIds'] = implode(',', $params->providerParams['parentIds']);
+					$params->providerParams['parentIds'] = implode(
+						',',
+						$params->providerParams['parentIds']
+					);
 				}
 				
-				$result['where'][] = '`parent` IN('.$params->providerParams['parentIds'].')';
+				$result['where'][] = '`parent` IN(' . $params->providerParams['parentIds'] . ')';
 				$result['depth'] = $params->providerParams['depth'];
 			break;
 		}
@@ -269,7 +286,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.1 (2018-09-24)
+	 * @version 3.1.1 (2019-06-08)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -293,7 +310,13 @@ class ddMenuBuilder {
 			'outputString' => ''
 		];
 		
-		$params->where = implode(' AND ', array_merge($this->where, $params->where));
+		$params->where = implode(
+			' AND ',
+			array_merge(
+				$this->where,
+				$params->where
+			)
+		);
 		
 		//Получаем все пункты одного уровня
 		$dbRes = $modx->db->query('
@@ -304,11 +327,11 @@ class ddMenuBuilder {
 				`published`,
 				`isfolder`
 			FROM
-				'.ddTools::$tables['site_content'].'
+				' . ddTools::$tables['site_content'] . '
 			WHERE
-				'.$params->where.'
+				' . $params->where . '
 			ORDER BY
-				`menuindex` '.$this->sortDir.'
+				`menuindex` ' . $this->sortDir . '
 		');
 		
 		//Если что-то есть
@@ -347,7 +370,10 @@ class ddMenuBuilder {
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
-						'hasActiveChildren' => in_array($doc['id'], $this->hereDoc_parents),
+						'hasActiveChildren' => in_array(
+							$doc['id'],
+							$this->hereDoc_parents
+						),
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
 					]);
 					

@@ -6,8 +6,8 @@
  * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
  * 
  * @uses PHP >= 5.6.
- * @uses MODXEvo >= 1.1.
- * @uses MODXEvo.library.ddTools >= 0.20.
+ * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.20 {@link http://code.divandesign.biz/modx/ddtools }
  * 
  * Data provider parameters:
  * @param $provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -54,21 +54,24 @@
  * @copyright 2009–2018 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
-//Подключаем класс (ddTools подключится там)
-require_once $modx->getConfig('base_path').'assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php';
+//Include (MODX)EvolutionCMS.libraries.ddTools
+require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 
 //Для обратной совместимости
-extract(ddTools::verifyRenamedParams($params, [
-	'tpls_item' => 'tplRow',
-	'tpls_itemHere' => 'tplHere',
-	'tpls_itemActive' => 'tplActive',
-	'tpls_itemParent' => 'tplParentRow',
-	'tpls_itemParentHere' => 'tplParentHere',
-	'tpls_itemParentActive' => 'tplParentActive',
-	'tpls_itemParentUnpub' => 'tplUnpubParentRow',
-	'tpls_itemParentUnpubActive' => 'tplUnpubParentActive',
-	'tpls_outer' => 'tplWrap'
-]));
+extract(ddTools::verifyRenamedParams(
+	$params,
+	[
+		'tpls_item' => 'tplRow',
+		'tpls_itemHere' => 'tplHere',
+		'tpls_itemActive' => 'tplActive',
+		'tpls_itemParent' => 'tplParentRow',
+		'tpls_itemParentHere' => 'tplParentHere',
+		'tpls_itemParentActive' => 'tplParentActive',
+		'tpls_itemParentUnpub' => 'tplUnpubParentRow',
+		'tpls_itemParentUnpubActive' => 'tplUnpubParentActive',
+		'tpls_outer' => 'tplWrap'
+	]
+));
 
 //Backward compatibility
 if (
@@ -77,8 +80,15 @@ if (
 ){
 	//По умолчанию на 1 уровень
 	$providerParams = '{
-		"parentIds": "'.$startId.'",
-		"depth": '.(isset($depth) && is_numeric($depth) ? $depth : 1).'
+		"parentIds": "' . $startId . '",
+		"depth": ' . (
+			(
+				isset($depth) &&
+				is_numeric($depth)
+			) ?
+			$depth :
+			1
+		).'
 	}';
 }
 
