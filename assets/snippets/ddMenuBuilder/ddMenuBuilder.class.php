@@ -13,7 +13,6 @@
 class ddMenuBuilder {
 	private
 		$hereDocId,
-		$hereDoc_parents = [],
 		$templates = [
 			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
@@ -65,17 +64,6 @@ class ddMenuBuilder {
 		}else{
 			$this->hereDocId = \ddTools::$modx->documentIdentifier;
 		}
-		
-		//Получим все id родителей текущего документа.
-		$this->hereDoc_parents = [$this->hereDocId];
-		$hereDoc_parentId = $this->hereDocId;
-		
-		while ($hereDoc_parentId > 0){
-			$this->hereDoc_parents[] = $hereDoc_parentId = \ddTools::$modx->getParent($hereDoc_parentId)['id'];
-		}
-		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents);
-		//Не null, а 0
-		$this->hereDoc_parents[0] = 0;
 		
 		//Если шаблоны переданы
 		if (isset($params->templates)){
@@ -299,7 +287,9 @@ class ddMenuBuilder {
 	 */
 	public function generate($params){
 		//Defaults
-		$params = (object) $params;
+		$params = (object) array_merge([
+			'depth' => 1
+		], (array) $params);
 		
 		$result = [
 			//Считаем, что активных пунктов по дефолту нет
@@ -344,19 +334,20 @@ class ddMenuBuilder {
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
 				
-				//Если надо выводить глубже
-				if ($params->depth > 1){
-					//Если это папка (т.е., могут быть дочерние)
-					if ($doc['isfolder']){
-						//Получаем детей (вне зависимости от того, нужно ли их выводить)
-						$children = $this->generate([
-							'where' => [
-								'parent' => '`parent` = '.$doc['id'],
-								//Any hidemenu
-								'hidemenu' => '`hidemenu` != 2'
-							],
-							'depth' => $params->depth - 1
-						]);
+				//Если это папка (т.е., могут быть дочерние)
+				if ($doc['isfolder']){
+					//Получаем детей (вне зависимости от того, нужно ли их выводить)
+					$children = $this->generate([
+						'where' => [
+							'parent' => '`parent` = '.$doc['id'],
+							//Any hidemenu
+							'hidemenu' => '`hidemenu` != 2'
+						],
+						'depth' => $params->depth - 1
+					]);
+					
+					//Если надо выводить глубже
+					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
 					}
@@ -368,10 +359,7 @@ class ddMenuBuilder {
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
 						'docPublished' => $doc['published'],
-						'hasActiveChildren' => in_array(
-							$doc['id'],
-							$this->hereDoc_parents
-						),
+						'hasActiveChildren' => $children['hasActive'],
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
 					]);
 					
@@ -388,6 +376,14 @@ class ddMenuBuilder {
 							'data' => $doc
 						]);
 					}
+				}
+				
+				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
+				if (
+					$doc['id'] == $this->hereDocId ||
+					$children['hasActive']
+				){
+					$result['hasActive'] = true;
 				}
 			}
 		}
