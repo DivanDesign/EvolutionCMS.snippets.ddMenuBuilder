@@ -53,8 +53,8 @@
  * @copyright 2009–2018 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
-//Include (MODX)EvolutionCMS.libraries.ddTools
-require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+//Подключаем класс (ddTools подключится там)
+require_once($modx->getConfig('base_path') . 'assets/snippets/ddMenuBuilder/ddMenuBuilder.class.php');
 
 //Prepare template params
 $templates = ddTools::encodedStringToArray($templates);
