@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.3 (2019-06-08)
+ * @version 2.4 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -23,18 +23,18 @@ class ddMenuBuilder {
 			'itemParentUnpub' => NULL,
 			'itemParentUnpubActive' => NULL
 		],
-		$sortDir = 'ASC',
+		$sortDir,
 		$where = [
 			'deleted' => '`deleted` = 0'
 		],
-		$showPublishedOnly = true
+		$showPublishedOnly
 	;
 	
 	/**
 	 * __construct
-	 * @version 1.4 (2019-06-08)
+	 * @version 1.5 (2019-06-08)
 	 * 
-	 * @param $params {stdClass} — The object of params. Default: new stdClass().
+	 * @param $params {array_associative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
@@ -49,33 +49,49 @@ class ddMenuBuilder {
 	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
 	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
-	public function __construct(stdClass $params = NULL){
+	public function __construct($params = []){
 		global $modx;
 		
 		//Include (MODX)EvolutionCMS.libraries.ddTools
 		require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 		
-		//Параметры могут быть не переданы
-		if ((is_null($params))){$params = new stdClass();}
-		
-		//ID текущего документа
-		if (isset($params->hereDocId)){
-			$this->hereDocId = $params->hereDocId;
-		}else{
-			$this->hereDocId = \ddTools::$modx->documentIdentifier;
-		}
+		//Defaults
+		$params = (object) array_merge(
+			[
+				'showPublishedOnly' => true,
+				'showInMenuOnly' => true,
+				'sortDir' => 'ASC',
+				'hereDocId' => \ddTools::$modx->documentIdentifier,
+				'templates' => []
+			],
+			(array) $params
+		);
 		
 		//Если шаблоны переданы
 		if (!empty($params->templates)){
 			//Перебираем шаблоны объекта
 			foreach (
-				$this->templates as
-				$key => $val
+				$params->templates as
+				$templateName => $templateContent
 			){
 				//Если шаблон передан — сохраняем
-				if (isset($params->templates[$key])){
-					$this->templates[$key] = \ddTools::$modx->getTpl($params->templates[$key]);
+				if (isset($this->templates[$templateName])){
+					$params->templates[$templateName] = \ddTools::$modx->getTpl($params->templates[$templateName]);
+				}else{
+					//Remove invalid templates
+					unset($params->templates[$templateName]);
 				}
+			}
+		}
+		
+		//Все параметры задают свойства объекта
+		foreach (
+			$params as
+			$paramName => $paramValue
+		){
+			//На всякий случай проверяем
+			if (isset($this->{$paramName})){
+				$this->{$paramName} = $paramValue;
 			}
 		}
 		
@@ -100,21 +116,17 @@ class ddMenuBuilder {
 		}
 		
 		//Направление сортировки
-		if (isset($params->sortDir)){
-			$this->sortDir = strtoupper($params->sortDir);
-		}
+		$this->sortDir = strtoupper($this->sortDir);
+		
+		$this->showPublishedOnly = boolval($this->showPublishedOnly);
 		
 		//По умолчанию берем только опубликованные документы
-		if (
-			!isset($params->showPublishedOnly) ||
-			$params->showPublishedOnly
-		){
+		if ($this->showPublishedOnly){
 			$this->where['published'] = '`published` = 1';
-		}else{
-			$this->showPublishedOnly = false;
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
+		//TODO: Save it to a property too like $this->showPublishedOnly
 		if (
 			!isset($params->showInMenuOnly) ||
 			$params->showInMenuOnly

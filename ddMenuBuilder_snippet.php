@@ -59,23 +59,22 @@ require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.c
 //Prepare template params
 $templates = ddTools::encodedStringToArray($templates);
 
-$ddMenuBuilder_params = new stdClass();
-
-//Задаём шаблоны
-$ddMenuBuilder_params->templates = $templates;
-
 $templates['outer'] =
 	isset($templates['outer']) ?
 	$modx->getTpl($templates['outer']) :
 	'<ul>[+children+]</ul>'
 ;
 
+$ddMenuBuilder_params = [
+	'templates' => $templates
+];
+
 //Направление сортировки
-if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
+if (isset($sortDir)){$ddMenuBuilder_params['sortDir'] = $sortDir;}
 //По умолчанию будут только опубликованные документы
-if (isset($showPublishedOnly)){$ddMenuBuilder_params->showPublishedOnly = $showPublishedOnly;}
+if (isset($showPublishedOnly)){$ddMenuBuilder_params['showPublishedOnly'] = $showPublishedOnly;}
 //По умолчанию будут только документы, у которых стоит галочка «показывать в меню»
-if (isset($showInMenuOnly)){$ddMenuBuilder_params->showInMenuOnly = $showInMenuOnly;}
+if (isset($showInMenuOnly)){$ddMenuBuilder_params['showInMenuOnly'] = $showInMenuOnly;}
 
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
