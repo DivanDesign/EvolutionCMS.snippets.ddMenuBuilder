@@ -77,7 +77,11 @@ if (isset($templates['itemParentUnpubActive'])){$ddMenuBuilder_params->templates
 
 if (empty($ddMenuBuilder_params->templates)){unset($ddMenuBuilder_params->templates);}
 
-$templates['outer'] = (isset($templates['outer'])) ? $modx->getTpl($templates['outer']) : '<ul>[+children+]</ul>';
+$templates['outer'] =
+	isset($templates['outer']) ?
+	$modx->getTpl($templates['outer']) :
+	'<ul>[+children+]</ul>'
+;
 
 //Направление сортировки
 if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
@@ -94,7 +98,11 @@ $providerParams = ddTools::encodedStringToArray($providerParams);
 //Генерируем меню
 $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
 	//Parent by default
-	'provider' => isset($provider) ? $provider : 'parent',
+	'provider' =>
+		isset($provider) ?
+		$provider :
+		'parent'
+	,
 	'providerParams' => $providerParams
 ]));
 
