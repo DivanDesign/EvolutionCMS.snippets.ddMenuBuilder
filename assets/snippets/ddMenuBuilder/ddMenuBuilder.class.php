@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.4 (2019-06-08)
+ * @version 2.4.1 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -27,12 +27,13 @@ class ddMenuBuilder {
 		$where = [
 			'deleted' => '`deleted` = 0'
 		],
-		$showPublishedOnly
+		$showPublishedOnly,
+		$showInMenuOnly
 	;
 	
 	/**
 	 * __construct
-	 * @version 1.5 (2019-06-08)
+	 * @version 1.6 (2019-06-08)
 	 * 
 	 * @param $params {array_associative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -115,10 +116,10 @@ class ddMenuBuilder {
 			$this->templates['itemParentUnpubActive'] = $this->templates['itemParentActive'];
 		}
 		
-		//Направление сортировки
+		//Валидация типов
 		$this->sortDir = strtoupper($this->sortDir);
-		
 		$this->showPublishedOnly = boolval($this->showPublishedOnly);
+		$this->showInMenuOnly = boolval($this->showInMenuOnly);
 		
 		//По умолчанию берем только опубликованные документы
 		if ($this->showPublishedOnly){
@@ -126,24 +127,21 @@ class ddMenuBuilder {
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
-		//TODO: Save it to a property too like $this->showPublishedOnly
-		if (
-			!isset($params->showInMenuOnly) ||
-			$params->showInMenuOnly
-		){
+		if ($this->showInMenuOnly){
 			$this->where['hidemenu'] = '`hidemenu` = 0';
 		}
 	}
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.1 (2017-08-30)
+	 * @version 1.2 (2017-08-30)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
 	 * @param $params {stdClass|array_associative} — The object of params. @required
 	 * @param $params->docId {integer} — ID документа. @required
-	 * @param $params->docPublished {0|1} — Признак публикации документа. @required
+	 * @param $params->docPublished {boolean} — Признак публикации документа. @required
+	 * @param $params->docShowedInMenu {boolean} — Признак отображения документа в меню. @required
 	 * @param $params->hasActiveChildren {boolean} — Есть ли у документа активные дочерние документы. @required
 	 * @param $params->hasChildrenOutput {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
@@ -190,10 +188,19 @@ class ddMenuBuilder {
 			}
 		//Если дочерних нет (отображаемых дочерних)
 		}else{
-			//Если опубликован или публикация не важна
 			if (
-				!$this->showPublishedOnly ||
-				$params->docPublished
+				(
+					//Либо документ должен отображаться в меню
+					$params->docShowedInMenu ||
+					//Либо отображение в меню вообще не важно
+					!$this->showInMenuOnly
+				) &&
+				(
+					//Либо документ опубликован
+					$params->docPublished ||
+					//Либо публикация вообще не важна
+					!$this->showPublishedOnly
+				)
 			){
 				//Если текущий пункт является активным
 				if ($params->docId == $this->hereDocId){
@@ -286,7 +293,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.1.2 (2019-06-08)
+	 * @version 3.2 (2019-06-08)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -325,7 +332,8 @@ class ddMenuBuilder {
 				`menutitle`,
 				`pagetitle`,
 				`published`,
-				`isfolder`
+				`isfolder`,
+				`hidemenu`
 			FROM
 				' . ddTools::$tables['site_content'] . '
 			WHERE
@@ -370,7 +378,9 @@ class ddMenuBuilder {
 					//Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
-						'docPublished' => $doc['published'],
+						'docPublished' => !!$doc['published'],
+						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
+						'docShowedInMenu' => !$doc['hidemenu'],
 						'hasActiveChildren' => $children['hasActive'],
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
 					]);
