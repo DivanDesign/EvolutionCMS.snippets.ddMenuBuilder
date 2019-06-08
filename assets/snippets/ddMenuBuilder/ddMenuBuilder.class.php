@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.2.1 (2019-06-08)
+ * @version 2.3 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -32,7 +32,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.3.2 (2019-06-08)
+	 * @version 1.4 (2019-06-08)
 	 * 
 	 * @param $params {stdClass} — The object of params. Default: new stdClass().
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -66,7 +66,7 @@ class ddMenuBuilder {
 		}
 		
 		//Если шаблоны переданы
-		if (isset($params->templates)){
+		if (!empty($params->templates)){
 			//Перебираем шаблоны объекта
 			foreach (
 				$this->templates as
@@ -74,7 +74,7 @@ class ddMenuBuilder {
 			){
 				//Если шаблон передан — сохраняем
 				if (isset($params->templates[$key])){
-					$this->templates[$key] = $params->templates[$key];
+					$this->templates[$key] = \ddTools::$modx->getTpl($params->templates[$key]);
 				}
 			}
 		}

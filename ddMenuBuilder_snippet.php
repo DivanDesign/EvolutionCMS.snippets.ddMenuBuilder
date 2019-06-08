@@ -62,20 +62,7 @@ $templates = ddTools::encodedStringToArray($templates);
 $ddMenuBuilder_params = new stdClass();
 
 //Задаём шаблоны
-$ddMenuBuilder_params->templates = [];
-
-if (isset($templates['item'])){$ddMenuBuilder_params->templates['item'] = $modx->getTpl($templates['item']);}
-if (isset($templates['itemHere'])){$ddMenuBuilder_params->templates['itemHere'] = $modx->getTpl($templates['itemHere']);}
-if (isset($templates['itemActive'])){$ddMenuBuilder_params->templates['itemActive'] = $modx->getTpl($templates['itemActive']);}
-
-if (isset($templates['itemParent'])){$ddMenuBuilder_params->templates['itemParent'] = $modx->getTpl($templates['itemParent']);}
-if (isset($templates['itemParentHere'])){$ddMenuBuilder_params->templates['itemParentHere'] = $modx->getTpl($templates['itemParentHere']);}
-if (isset($templates['itemParentActive'])){$ddMenuBuilder_params->templates['itemParentActive'] = $modx->getTpl($templates['itemParentActive']);}
-
-if (isset($templates['itemParentUnpub'])){$ddMenuBuilder_params->templates['itemParentUnpub'] = $modx->getTpl($templates['itemParentUnpub']);}
-if (isset($templates['itemParentUnpubActive'])){$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $modx->getTpl($templates['itemParentUnpubActive']);}
-
-if (empty($ddMenuBuilder_params->templates)){unset($ddMenuBuilder_params->templates);}
+$ddMenuBuilder_params->templates = $templates;
 
 $templates['outer'] =
 	isset($templates['outer']) ?
