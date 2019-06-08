@@ -30,22 +30,21 @@
  * @param $showInMenuOnly {0|1} — Show only documents visible in the menu. Default: 1.
  * 
  * Template parameters:
- * All templates can be set as chunk name or code via “@CODE:” prefix.
- * Placeholders available in all templates: [+id+], [+menutitle+] (will be equal to [+pagetitle+] if empty), [+pagetitle+], [+published+], [+isfolder+].
- * @param $tpls_item {string_chunkName|string} — The menu item template. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemHere {string_chunkName|string} — The menu item template for the current document. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
- * @param $tpls_itemActive {string_chunkName|string} — The menu item template for a document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $tpls_itemHere.
+ * @param $templates {stirng_json|string_queryFormated} — Templates. All templates can be set as chunk name or code via “@CODE:” prefix. Placeholders available in all templates: [+id+], [+menutitle+] (will be equal to [+pagetitle+] if empty), [+pagetitle+], [+published+], [+isfolder+].
+ * @param $templates['item'] {string_chunkName|string} — The menu item template. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $templates['itemHere'] {string_chunkName|string} — The menu item template for the current document. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+ * @param $templates['itemActive'] {string_chunkName|string} — The menu item template for a document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $templates['itemHere'].
  * 
- * @param $tpls_itemParent {string_chunkName|string} — The menu item template for documents which has a children displayed in menu. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
- * @param $tpls_itemParentHere {string_chunkName|string} — The menu item template for the current document when it has children displayed in menu. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
- * @param $tpls_itemParentActive {string_chunkName|string} — The menu item template for a document which has the current document as one of the children. Default: $tpls_itemParentHere.
+ * @param $templates['itemParent'] {string_chunkName|string} — The menu item template for documents which has a children displayed in menu. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>';.
+ * @param $templates['itemParentHere'] {string_chunkName|string} — The menu item template for the current document when it has children displayed in menu. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+ * @param $templates['itemParentActive'] {string_chunkName|string} — The menu item template for a document which has the current document as one of the children. Default: $templates['itemParentHere'].
  * 
- * @param $tpls_itemParentUnpub {string_chunkName|string} — The menu item template for unpublished documents which has a children displayed in menu. Default: $tpls_itemParent.
- * @param $tpls_itemParentUnpubActive {string_chunkName|string} — The menu item template for an unpublished document which has the current document as one of the children. Default: $tpls_itemParentActive.
+ * @param $templates['itemParentUnpub'] {string_chunkName|string} — The menu item template for unpublished documents which has a children displayed in menu. Default: $templates['itemParent'].
+ * @param $templates['itemParentUnpubActive'] {string_chunkName|string} — The menu item template for an unpublished document which has the current document as one of the children. Default: $templates['itemParentActive'].
  * 
- * @param $tpls_outer {string_chunkName|string} — Wrapper template. Available placeholders: [+children+]. Default: '<ul>[+children+]</ul>'.
+ * @param $templates['outer'] {string_chunkName|string} — Wrapper template. Available placeholders: [+children+]. Default: '<ul>[+children+]</ul>'.
  * 
- * @param $placeholders {stirng_json|string_queryFormated} — Additional data as query string has to be passed into “tpls_outer”. The parameter must be set as JSON (https://en.wikipedia.org/wiki/JSON) or Query string (https://en.wikipedia.org/wiki/Query_string). Default: —.
+ * @param $placeholders {stirng_json|string_queryFormated} — Additional data as query string has to be passed into “templates['outer']”. The parameter must be set as JSON (https://en.wikipedia.org/wiki/JSON) or Query string (https://en.wikipedia.org/wiki/Query_string). Default: —.
  * @example &placeholders=`{"pladeholder1": "value1", "pagetitle", "My awesome pagetitle!"}`.
  * @example &placeholders=`pladeholder1=value1&pagetitle=My awesome pagetitle!`.
  * 
@@ -57,60 +56,28 @@
 //Include (MODX)EvolutionCMS.libraries.ddTools
 require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 
-//Для обратной совместимости
-extract(ddTools::verifyRenamedParams(
-	$params,
-	[
-		'tpls_item' => 'tplRow',
-		'tpls_itemHere' => 'tplHere',
-		'tpls_itemActive' => 'tplActive',
-		'tpls_itemParent' => 'tplParentRow',
-		'tpls_itemParentHere' => 'tplParentHere',
-		'tpls_itemParentActive' => 'tplParentActive',
-		'tpls_itemParentUnpub' => 'tplUnpubParentRow',
-		'tpls_itemParentUnpubActive' => 'tplUnpubParentActive',
-		'tpls_outer' => 'tplWrap'
-	]
-));
-
-//Backward compatibility
-if (
-	isset($startId) &&
-	is_numeric($startId)
-){
-	//По умолчанию на 1 уровень
-	$providerParams = '{
-		"parentIds": "' . $startId . '",
-		"depth": ' . (
-			(
-				isset($depth) &&
-				is_numeric($depth)
-			) ?
-			$depth :
-			1
-		).'
-	}';
-}
+//Prepare template params
+$templates = ddTools::encodedStringToArray($templates);
 
 $ddMenuBuilder_params = new stdClass();
 
 //Задаём шаблоны
 $ddMenuBuilder_params->templates = [];
 
-if (isset($tpls_item)){$ddMenuBuilder_params->templates['item'] = $modx->getTpl($tpls_item);}
-if (isset($tpls_itemHere)){$ddMenuBuilder_params->templates['itemHere'] = $modx->getTpl($tpls_itemHere);}
-if (isset($tpls_itemActive)){$ddMenuBuilder_params->templates['itemActive'] = $modx->getTpl($tpls_itemActive);}
+if (isset($templates['item'])){$ddMenuBuilder_params->templates['item'] = $modx->getTpl($templates['item']);}
+if (isset($templates['itemHere'])){$ddMenuBuilder_params->templates['itemHere'] = $modx->getTpl($templates['itemHere']);}
+if (isset($templates['itemActive'])){$ddMenuBuilder_params->templates['itemActive'] = $modx->getTpl($templates['itemActive']);}
 
-if (isset($tpls_itemParent)){$ddMenuBuilder_params->templates['itemParent'] = $modx->getTpl($tpls_itemParent);}
-if (isset($tpls_itemParentHere)){$ddMenuBuilder_params->templates['itemParentHere'] = $modx->getTpl($tpls_itemParentHere);}
-if (isset($tpls_itemParentActive)){$ddMenuBuilder_params->templates['itemParentActive'] = $modx->getTpl($tpls_itemParentActive);}
+if (isset($templates['itemParent'])){$ddMenuBuilder_params->templates['itemParent'] = $modx->getTpl($templates['itemParent']);}
+if (isset($templates['itemParentHere'])){$ddMenuBuilder_params->templates['itemParentHere'] = $modx->getTpl($templates['itemParentHere']);}
+if (isset($templates['itemParentActive'])){$ddMenuBuilder_params->templates['itemParentActive'] = $modx->getTpl($templates['itemParentActive']);}
 
-if (isset($tpls_itemParentUnpub)){$ddMenuBuilder_params->templates['itemParentUnpub'] = $modx->getTpl($tpls_itemParentUnpub);}
-if (isset($tpls_itemParentUnpubActive)){$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $modx->getTpl($tpls_itemParentUnpubActive);}
+if (isset($templates['itemParentUnpub'])){$ddMenuBuilder_params->templates['itemParentUnpub'] = $modx->getTpl($templates['itemParentUnpub']);}
+if (isset($templates['itemParentUnpubActive'])){$ddMenuBuilder_params->templates['itemParentUnpubActive'] = $modx->getTpl($templates['itemParentUnpubActive']);}
 
 if (empty($ddMenuBuilder_params->templates)){unset($ddMenuBuilder_params->templates);}
 
-$tpls_outer = (isset($tpls_outer)) ? $modx->getTpl($tpls_outer) : '<ul>[+children+]</ul>';
+$templates['outer'] = (isset($templates['outer'])) ? $modx->getTpl($templates['outer']) : '<ul>[+children+]</ul>';
 
 //Направление сортировки
 if (isset($sortDir)){$ddMenuBuilder_params->sortDir = $sortDir;}
@@ -141,7 +108,7 @@ if (!empty($placeholders)){
 $placeholders['children'] = $result['outputString'];
 
 return ddTools::parseText([
-	'text' => $tpls_outer,
+	'text' => $templates['outer'],
 	'data' => $placeholders
 ]);
 ?>
