@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.4.1 (2019-06-08)
+ * @version 2.4.2 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -33,7 +33,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.6 (2019-06-08)
+	 * @version 1.6.1 (2019-06-08)
 	 * 
 	 * @param $params {array_associative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -91,7 +91,10 @@ class ddMenuBuilder {
 			$paramName => $paramValue
 		){
 			//На всякий случай проверяем
-			if (isset($this->{$paramName})){
+			if (property_exists(
+				$this,
+				$paramName
+			)){
 				$this->{$paramName} = $paramValue;
 			}
 		}
