@@ -78,7 +78,10 @@ class ddMenuBuilder {
 				$templateName => $templateContent
 			){
 				//Если шаблон передан — сохраняем
-				if (isset($this->templates[$templateName])){
+				if (array_key_exists(
+					$templateName,
+					$this->templates
+				)){
 					$params->templates[$templateName] = \ddTools::$modx->getTpl($params->templates[$templateName]);
 				}else{
 					//Remove invalid templates
@@ -105,7 +108,6 @@ class ddMenuBuilder {
 		if (is_null($this->templates['itemActive'])){
 			$this->templates['itemActive'] = $this->templates['itemHere'];
 		}
-		
 		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
 		if (is_null($this->templates['itemUnpub'])){
 			$this->templates['itemUnpub'] = $this->templates['item'];
