@@ -1,39 +1,43 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.1.2 (2017-08-30)
+ * @version 2.5 (2019-06-08)
  * 
  * @uses PHP >= 5.6.
- * @uses MODXEvo >= 1.1.
- * @uses MODXEvo.library.ddTools >= 0.16.1.
+ * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
  * 
- * @copyright 2009–2016 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
-	private $hereDocId;
-	private $hereDoc_parents = [];
-	private $templates = [
-		'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
-		'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
-		'itemActive' => NULL,
-		'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
-		'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
-		'itemParentActive' => NULL,
-		'itemParentUnpub' => NULL,
-		'itemParentUnpubActive' => NULL
-	];
-	private $sortDir = 'ASC';
-	private $where = [
-		'deleted' => '`deleted` = 0'
-	];
-	private $showPublishedOnly = true;
+	private
+		$hereDocId,
+		$templates = [
+			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
+			'itemActive' => NULL,
+			'itemUnpub' => NULL,
+			'itemUnpubActive' => NULL,
+			'itemParent' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+			'itemParentHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>',
+			'itemParentActive' => NULL,
+			'itemParentUnpub' => NULL,
+			'itemParentUnpubActive' => NULL
+		],
+		$sortDir,
+		$where = [
+			'deleted' => '`deleted` = 0'
+		],
+		$showPublishedOnly,
+		$showInMenuOnly
+	;
 	
 	/**
 	 * __construct
-	 * @version 1.3 (2018-09-24)
+	 * @version 1.7 (2019-06-08)
 	 * 
-	 * @param $params {stdClass} — The object of params. Default: new stdClass().
+	 * @param $params {array_associative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
@@ -46,49 +50,72 @@ class ddMenuBuilder {
 	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
 	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
 	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
-	 * @param $params->hereDocId {integer} — ID текущего документа. Default: $modx->documentIdentifier.
+	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
-	public function __construct(stdClass $params = NULL){
+	public function __construct($params = []){
 		global $modx;
 		
-		//Подключаем modx.ddTools
-		require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.class.php';
+		//Include (MODX)EvolutionCMS.libraries.ddTools
+		require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 		
-		//Параметры могут быть не переданы
-		if ((is_null($params))){$params = new stdClass();}
-		
-		//ID текущего документа
-		if (isset($params->hereDocId)){
-			$this->hereDocId = $params->hereDocId;
-		}else{
-			$this->hereDocId = $modx->documentIdentifier;
-		}
-		
-		//Получим все id родителей текущего документа.
-		$this->hereDoc_parents = [$this->hereDocId];
-		$hereDoc_parentId = $this->hereDocId;
-		
-		while ($hereDoc_parentId > 0){
-			$this->hereDoc_parents[] = $hereDoc_parentId = $modx->getParent($hereDoc_parentId)['id'];
-		}
-		$this->hereDoc_parents  = array_reverse($this->hereDoc_parents );
-		//Не null, а 0
-		$this->hereDoc_parents[0] = 0;
+		//Defaults
+		$params = (object) array_merge(
+			[
+				'showPublishedOnly' => true,
+				'showInMenuOnly' => true,
+				'sortDir' => 'ASC',
+				'hereDocId' => \ddTools::$modx->documentIdentifier,
+				'templates' => []
+			],
+			(array) $params
+		);
 		
 		//Если шаблоны переданы
-		if (isset($params->templates)){
+		if (!empty($params->templates)){
 			//Перебираем шаблоны объекта
-			foreach ($this->templates as $key => $val){
+			foreach (
+				$params->templates as
+				$templateName => $templateContent
+			){
 				//Если шаблон передан — сохраняем
-				if (isset($params->templates[$key])){
-					$this->templates[$key] = $params->templates[$key];
+				if (array_key_exists(
+					$templateName,
+					$this->templates
+				)){
+					$params->templates[$templateName] = \ddTools::$modx->getTpl($params->templates[$templateName]);
+				}else{
+					//Remove invalid templates
+					unset($params->templates[$templateName]);
 				}
+			}
+		}
+		
+		//Все параметры задают свойства объекта
+		foreach (
+			$params as
+			$paramName => $paramValue
+		){
+			//На всякий случай проверяем
+			if (property_exists(
+				$this,
+				$paramName
+			)){
+				$this->{$paramName} = $paramValue;
 			}
 		}
 		
 		//Шаблон активного элемента по умолчанию равен шаблону текущего элемента
 		if (is_null($this->templates['itemActive'])){
 			$this->templates['itemActive'] = $this->templates['itemHere'];
+		}
+		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		if (is_null($this->templates['itemUnpub'])){
+			$this->templates['itemUnpub'] = $this->templates['item'];
+		}
+		
+		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		if (is_null($this->templates['itemUnpubActive'])){
+			$this->templates['itemUnpubActive'] = $this->templates['itemActive'];
 		}
 		
 		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
@@ -106,39 +133,32 @@ class ddMenuBuilder {
 			$this->templates['itemParentUnpubActive'] = $this->templates['itemParentActive'];
 		}
 		
-		//Направление сортировки
-		if (isset($params->sortDir)){
-			$this->sortDir = strtoupper($params->sortDir);
-		}
+		//Валидация типов
+		$this->sortDir = strtoupper($this->sortDir);
+		$this->showPublishedOnly = boolval($this->showPublishedOnly);
+		$this->showInMenuOnly = boolval($this->showInMenuOnly);
 		
 		//По умолчанию берем только опубликованные документы
-		if (
-			!isset($params->showPublishedOnly) ||
-			$params->showPublishedOnly
-		){
+		if ($this->showPublishedOnly){
 			$this->where['published'] = '`published` = 1';
-		}else{
-			$this->showPublishedOnly = false;
 		}
 		
 		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
-		if (
-			!isset($params->showInMenuOnly) ||
-			$params->showInMenuOnly
-		){
+		if ($this->showInMenuOnly){
 			$this->where['hidemenu'] = '`hidemenu` = 0';
 		}
 	}
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.1 (2017-08-30)
+	 * @version 1.3 (2019-06-08)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
 	 * @param $params {stdClass|array_associative} — The object of params. @required
 	 * @param $params->docId {integer} — ID документа. @required
-	 * @param $params->docPublished {0|1} — Признак публикации документа. @required
+	 * @param $params->docPublished {boolean} — Признак публикации документа. @required
+	 * @param $params->docShowedInMenu {boolean} — Признак отображения документа в меню. @required
 	 * @param $params->hasActiveChildren {boolean} — Есть ли у документа активные дочерние документы. @required
 	 * @param $params->hasChildrenOutput {boolean} — Будут ли у документа выводиться дочерние. @required
 	 * 
@@ -185,22 +205,42 @@ class ddMenuBuilder {
 			}
 		//Если дочерних нет (отображаемых дочерних)
 		}else{
-			//Если опубликован или публикация не важна
 			if (
-				!$this->showPublishedOnly ||
-				$params->docPublished
+				(
+					//Либо документ должен отображаться в меню
+					$params->docShowedInMenu ||
+					//Либо отображение в меню вообще не важно
+					!$this->showInMenuOnly
+				) &&
+				(
+					//Либо документ опубликован
+					$params->docPublished ||
+					//Либо публикация вообще не важна
+					!$this->showPublishedOnly
+				)
 			){
-				//Если текущий пункт является активным
-				if ($params->docId == $this->hereDocId){
-					//Шаблон активного пункта
-					$result = $this->templates['itemHere'];
-				//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-				}else if($params->hasActiveChildren){
-					$result = $this->templates['itemActive'];
-				//Если не не активный
+				//Если опубликован, значит надо использовать какой-то опубликованный шаблон
+				if ($params->docPublished){
+					//Если текущий пункт является активным
+					if ($params->docId == $this->hereDocId){
+						//Шаблон активного пункта
+						$result = $this->templates['itemHere'];
+					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
+					}else if($params->hasActiveChildren){
+						$result = $this->templates['itemActive'];
+					//Если не не активный
+					}else{
+						//Шаблон пункта меню
+						$result = $this->templates['item'];
+					}
 				}else{
-					//Шаблон пункта меню
-					$result = $this->templates['item'];
+					//Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
+					if ($params->hasActiveChildren){
+						$result = $this->templates['itemUnpubActive'];
+					}else{
+						//Шаблон неопубликованного пункта меню
+						$result = $this->templates['itemUnpub'];
+					}
 				}
 			}
 		}
@@ -210,7 +250,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.1 (2016-10-24)
+	 * @version 0.1.1 (2019-06-08)
 	 * 
 	 * @param $params {stdClass|array_associative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -220,9 +260,12 @@ class ddMenuBuilder {
 	 */
 	public function prepareProviderParams($params = []){
 		//Defaults
-		$params = (object) array_merge([
-			'provider' => 'parent'
-		], (array) $params);
+		$params = (object) array_merge(
+			[
+				'provider' => 'parent'
+			],
+			(array) $params
+		);
 		
 		$result = [
 			'where' => [],
@@ -237,10 +280,13 @@ class ddMenuBuilder {
 					!empty($params->providerParams['ids'])
 				){
 					if (is_array($params->providerParams['ids'])){
-						$params->providerParams['ids'] = implode(',', $params->providerParams['ids']);
+						$params->providerParams['ids'] = implode(
+							',',
+							$params->providerParams['ids']
+						);
 					}
 					
-					$result['where'][] = '`id` IN('.$params->providerParams['ids'].')';
+					$result['where'][] = '`id` IN(' . $params->providerParams['ids'] . ')';
 				}else{
 					//Never
 					$result['where'][] = '0 = 1';
@@ -250,16 +296,22 @@ class ddMenuBuilder {
 			default:
 			case 'parent':
 				//Defaults
-				$params->providerParams = array_merge([
-					'parentIds' => 0,
-					'depth' => 1
-				], $params->providerParams);
+				$params->providerParams = array_merge(
+					[
+						'parentIds' => 0,
+						'depth' => 1
+					],
+					$params->providerParams
+				);
 				
 				if (is_array($params->providerParams['parentIds'])){
-					$params->providerParams['parentIds'] = implode(',', $params->providerParams['parentIds']);
+					$params->providerParams['parentIds'] = implode(
+						',',
+						$params->providerParams['parentIds']
+					);
 				}
 				
-				$result['where'][] = '`parent` IN('.$params->providerParams['parentIds'].')';
+				$result['where'][] = '`parent` IN(' . $params->providerParams['parentIds'] . ')';
 				$result['depth'] = $params->providerParams['depth'];
 			break;
 		}
@@ -269,7 +321,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.1 (2018-09-24)
+	 * @version 3.2 (2019-06-08)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -282,9 +334,9 @@ class ddMenuBuilder {
 	 */
 	public function generate($params){
 		//Defaults
-		$params = (object) $params;
-		
-		global $modx;
+		$params = (object) array_merge([
+			'depth' => 1
+		], (array) $params);
 		
 		$result = [
 			//Считаем, что активных пунктов по дефолту нет
@@ -293,28 +345,35 @@ class ddMenuBuilder {
 			'outputString' => ''
 		];
 		
-		$params->where = implode(' AND ', array_merge($this->where, $params->where));
+		$params->where = implode(
+			' AND ',
+			array_merge(
+				$this->where,
+				$params->where
+			)
+		);
 		
 		//Получаем все пункты одного уровня
-		$dbRes = $modx->db->query('
+		$dbRes = \ddTools::$modx->db->query('
 			SELECT
 				`id`,
 				`menutitle`,
 				`pagetitle`,
 				`published`,
-				`isfolder`
+				`isfolder`,
+				`hidemenu`
 			FROM
-				'.ddTools::$tables['site_content'].'
+				' . ddTools::$tables['site_content'] . '
 			WHERE
-				'.$params->where.'
+				' . $params->where . '
 			ORDER BY
-				`menuindex` '.$this->sortDir.'
+				`menuindex` ' . $this->sortDir . '
 		');
 		
 		//Если что-то есть
-		if ($modx->db->getRecordCount($dbRes) > 0){
+		if (\ddTools::$modx->db->getRecordCount($dbRes) > 0){
 			//Проходимся по всем пунктам текущего уровня
-			while ($doc = $modx->db->getRow($dbRes)){
+			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
 				//Пустые дети
 				$children = [
 					'hasActive' => false,
@@ -323,19 +382,20 @@ class ddMenuBuilder {
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
 				
-				//Если надо выводить глубже
-				if ($params->depth > 1){
-					//Если это папка (т.е., могут быть дочерние)
-					if ($doc['isfolder']){
-						//Получаем детей (вне зависимости от того, нужно ли их выводить)
-						$children = $this->generate([
-							'where' => [
-								'parent' => '`parent` = '.$doc['id'],
-								//Any hidemenu
-								'hidemenu' => '`hidemenu` != 2'
-							],
-							'depth' => $params->depth - 1
-						]);
+				//Если это папка (т.е., могут быть дочерние)
+				if ($doc['isfolder']){
+					//Получаем детей (вне зависимости от того, нужно ли их выводить)
+					$children = $this->generate([
+						'where' => [
+							'parent' => '`parent` = '.$doc['id'],
+							//Any hidemenu
+							'hidemenu' => '`hidemenu` != 2'
+						],
+						'depth' => $params->depth - 1
+					]);
+					
+					//Если надо выводить глубже
+					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
 					}
@@ -346,8 +406,10 @@ class ddMenuBuilder {
 					//Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc['id'],
-						'docPublished' => $doc['published'],
-						'hasActiveChildren' => in_array($doc['id'], $this->hereDoc_parents),
+						'docPublished' => !!$doc['published'],
+						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
+						'docShowedInMenu' => !$doc['hidemenu'],
+						'hasActiveChildren' => $children['hasActive'],
 						'hasChildrenOutput' => $doc['children']['outputString'] != ''
 					]);
 					
@@ -364,6 +426,14 @@ class ddMenuBuilder {
 							'data' => $doc
 						]);
 					}
+				}
+				
+				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
+				if (
+					$doc['id'] == $this->hereDocId ||
+					$children['hasActive']
+				){
+					$result['hasActive'] = true;
 				}
 			}
 		}
