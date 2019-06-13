@@ -1,4 +1,16 @@
-# ddMenuBuilder changelog
+# (MODX)EvolutionCMS.snippets.ddMenuBuilder changelog
+
+## Version 2.0 (2019-06-13)
+* \* Attention! Backward compatibility is broken!
+* \* Attention! (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 is required.
+* \* Template parameters refactoring.
+* \+ Added templates for unpublished items:
+	* \+ $templates['itemUnpub'] — The menu item template for unpublished document. Default: $templates['item'].
+	* \+ $templates['itemUnpubActive'] — The menu item template for unpublished document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $templates['itemActive'].
+* \* “ddTools::$modx” is used instead of global “$modx”.
+* \* Fixed an error when docs that must be hidden will be showed.
+* \* Refactoring, other small changes.
+
 ## Version 1.13b (2018-10-17)
 * \* Attention! PHP >= 5.6 is required.
 * \* ddMenuBuilder snippet:
