@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.5 (2019-06-08)
+ * @version 2.5.1 (2019-11-29)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -321,7 +321,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.2 (2019-06-08)
+	 * @version 3.2.1 (2019-11-29)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -330,13 +330,18 @@ class ddMenuBuilder {
 	 * @param $params->where[i] {string} — Условие. @required
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * 
-	 * @return {array}
+	 * @return $result {array_associative}
+	 * @return $result['hasActive'] {boolean}
+	 * @return $result['outputString'] {string}
 	 */
 	public function generate($params){
 		//Defaults
-		$params = (object) array_merge([
-			'depth' => 1
-		], (array) $params);
+		$params = (object) array_merge(
+			[
+				'depth' => 1
+			],
+			(array) $params
+		);
 		
 		$result = [
 			//Считаем, что активных пунктов по дефолту нет
@@ -387,7 +392,7 @@ class ddMenuBuilder {
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = $this->generate([
 						'where' => [
-							'parent' => '`parent` = '.$doc['id'],
+							'parent' => '`parent` = ' . $doc['id'],
 							//Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
 						],
