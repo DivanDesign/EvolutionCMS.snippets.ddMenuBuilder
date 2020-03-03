@@ -1,13 +1,13 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.6 (2019-11-29)
+ * @version 2.7 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
  * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
  * 
- * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2020 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
@@ -321,7 +321,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.3 (2019-11-29)
+	 * @version 3.4 (2020-03-03)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -329,6 +329,7 @@ class ddMenuBuilder {
 	 * @param $params->where {array} — Условия выборки. @required
 	 * @param $params->where[i] {string} — Условие. @required
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
+	 * @param $params->level {integer} — For internal using only, not recommended to pass it. Default: 1.
 	 * 
 	 * @return $result {array_associative}
 	 * @return $result['hasActive'] {boolean}
@@ -340,7 +341,9 @@ class ddMenuBuilder {
 		//Defaults
 		$params = (object) array_merge(
 			[
-				'depth' => 1
+				'depth' => 1,
+				//For internal using only, not recommended to pass it
+				'level' => 1
 			],
 			(array) $params
 		);
@@ -406,7 +409,8 @@ class ddMenuBuilder {
 							//Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
 						],
-						'depth' => $params->depth - 1
+						'depth' => $params->depth - 1,
+						'level' => $params->level + 1
 					]);
 					
 					//Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
@@ -444,6 +448,7 @@ class ddMenuBuilder {
 						
 						//Подготовим к парсингу
 						$doc['children'] = $doc['children']['outputString'];
+						$doc['level'] = $params->level;
 						//Парсим
 						$result['outputString'] .= ddTools::parseText([
 							'text' => $tpl,
