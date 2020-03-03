@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 4.0 (2020-03-03)
+ * @version 4.1 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -253,11 +253,11 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.2 (2020-03-03)
+	 * @version 0.3 (2020-03-03)
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
-	 * @param $params->providerParams {arrayAssociative} — Parameters to be passed to the provider.
+	 * @param $params->providerParams {stdClass|arrayAssociative} — Parameters to be passed to the provider.
 	 * 
 	 * @return {stdClass}
 	 */
@@ -265,10 +265,15 @@ class ddMenuBuilder {
 		//Defaults
 		$params = (object) array_merge(
 			[
-				'provider' => 'parent'
+				'provider' => 'parent',
+				'providerParams' => []
 			],
 			(array) $params
 		);
+		
+		if (is_array($params->providerParams)){
+			$params->providerParams = (object) $params->providerParams;
+		}
 		
 		$result = (object) [
 			'where' => [],
@@ -279,19 +284,19 @@ class ddMenuBuilder {
 			case 'select':
 				//Required paremeter
 				if (
-					isset($params->providerParams['ids']) &&
-					!empty($params->providerParams['ids'])
+					isset($params->providerParams->ids) &&
+					!empty($params->providerParams->ids)
 				){
-					if (is_array($params->providerParams['ids'])){
-						$params->providerParams['ids'] = implode(
+					if (is_array($params->providerParams->ids)){
+						$params->providerParams->ids = implode(
 							',',
-							$params->providerParams['ids']
+							$params->providerParams->ids
 						);
 					}
 					
 					$result->where[] =
 						'`id` IN(' .
-						$params->providerParams['ids'] .
+						$params->providerParams->ids .
 						')'
 					;
 				}else{
@@ -303,27 +308,27 @@ class ddMenuBuilder {
 			case 'parent':
 			default:
 				//Defaults
-				$params->providerParams = array_merge(
+				$params->providerParams = (object) array_merge(
 					[
 						'parentIds' => 0,
 						'depth' => 1
 					],
-					$params->providerParams
+					(array) $params->providerParams
 				);
 				
-				if (is_array($params->providerParams['parentIds'])){
-					$params->providerParams['parentIds'] = implode(
+				if (is_array($params->providerParams->parentIds)){
+					$params->providerParams->parentIds = implode(
 						',',
-						$params->providerParams['parentIds']
+						$params->providerParams->parentIds
 					);
 				}
 				
 				$result->where[] =
 					'`parent` IN(' .
-					$params->providerParams['parentIds'] .
+					$params->providerParams->parentIds .
 					')'
 				;
-				$result->depth = $params->providerParams['depth'];
+				$result->depth = $params->providerParams->depth;
 			break;
 		}
 		
