@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.7.1 (2020-03-03)
+ * @version 3.0 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -332,7 +332,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.4.1 (2020-03-03)
+	 * @version 4.0 (2020-03-03)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -342,11 +342,11 @@ class ddMenuBuilder {
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * @param $params->level {integer} — For internal using only, not recommended to pass it. Default: 1.
 	 * 
-	 * @return $result {arrayAssociative}
-	 * @return $result['hasActive'] {boolean}
-	 * @return $result['totalAll'] {integer} — Количество отображаемых пунктов всех уровней.
-	 * @return $result['totalThisLevel'] {integer} — Количество отображаемых пунктов этого уровня.
-	 * @return $result['outputString'] {string}
+	 * @return $result {stdClass}
+	 * @return $result->hasActive {boolean}
+	 * @return $result->totalAll {integer} — Количество отображаемых пунктов всех уровней.
+	 * @return $result->totalThisLevel {integer} — Количество отображаемых пунктов этого уровня.
+	 * @return $result->outputString {string}
 	 */
 	public function generate($params){
 		//Defaults
@@ -359,7 +359,7 @@ class ddMenuBuilder {
 			(array) $params
 		);
 		
-		$result = [
+		$result = (object) [
 			//Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
 			//Как и вообще пунктов
@@ -399,7 +399,7 @@ class ddMenuBuilder {
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
 				//Пустые дети
-				$children = [
+				$children = (object) [
 					'hasActive' => false,
 					'totalAll' => 0,
 					'outputString' => ''
@@ -428,14 +428,14 @@ class ddMenuBuilder {
 					]);
 					
 					//Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
-					$result['totalAll'] += $children['totalAll'];
+					$result->totalAll += $children->totalAll;
 					
 					//Если надо выводить глубже
 					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
-						$doc['totalAllChildren'] = $children['totalAll'];
-						$doc['totalThisLevelChildren'] = $children['totalThisLevel'];
+						$doc['totalAllChildren'] = $children->totalAll;
+						$doc['totalThisLevelChildren'] = $children->totalThisLevel;
 					}
 				}
 				
@@ -447,15 +447,15 @@ class ddMenuBuilder {
 						'docPublished' => !!$doc['published'],
 						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
 						'docShowedInMenu' => !$doc['hidemenu'],
-						'hasActiveChildren' => $children['hasActive'],
-						'hasChildrenOutput' => $doc['children']['outputString'] != ''
+						'hasActiveChildren' => $children->hasActive,
+						'hasChildrenOutput' => $doc['children']->outputString != ''
 					]);
 					
 					//Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
 						//Пунктов меню становится больше
-						$result['totalAll']++;
-						$result['totalThisLevel']++;
+						$result->totalAll++;
+						$result->totalThisLevel++;
 						
 						//Если вдруг меню у документа не задано, выставим заголовок вместо него
 						if (trim($doc['menutitle']) == ''){
@@ -463,11 +463,11 @@ class ddMenuBuilder {
 						}
 						
 						//Подготовим к парсингу
-						$doc['children'] = $doc['children']['outputString'];
+						$doc['children'] = $doc['children']->outputString;
 						$doc['level'] = $params->level;
 						
 						//Парсим
-						$result['outputString'] .= ddTools::parseText([
+						$result->outputString .= ddTools::parseText([
 							'text' => $tpl,
 							'data' => $doc
 						]);
@@ -477,9 +477,9 @@ class ddMenuBuilder {
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
 				if (
 					$doc['id'] == $this->hereDocId ||
-					$children['hasActive']
+					$children->hasActive
 				){
-					$result['hasActive'] = true;
+					$result->hasActive = true;
 				}
 			}
 		}

@@ -111,9 +111,9 @@ if (!empty($placeholders)){
 	$placeholders = [];
 }
 
-$placeholders['children'] = $result['outputString'];
-$placeholders['totalAllChildren'] = $result['totalAll'];
-$placeholders['totalThisLevelChildren'] = $result['totalThisLevel'];
+$placeholders['children'] = $result->outputString;
+$placeholders['totalAllChildren'] = $result->totalAll;
+$placeholders['totalThisLevelChildren'] = $result->totalThisLevel;
 
 return ddTools::parseText([
 	'text' => $templates['outer'],
