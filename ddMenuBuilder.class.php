@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 3.0.1 (2020-03-03)
+ * @version 4.0 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -253,13 +253,13 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.1.2 (2020-03-03)
+	 * @version 0.2 (2020-03-03)
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
 	 * @param $params->providerParams {arrayAssociative} — Parameters to be passed to the provider.
 	 * 
-	 * @return {arrayAssociative}
+	 * @return {stdClass}
 	 */
 	public function prepareProviderParams($params = []){
 		//Defaults
@@ -270,7 +270,7 @@ class ddMenuBuilder {
 			(array) $params
 		);
 		
-		$result = [
+		$result = (object) [
 			'where' => [],
 			'depth' => 1
 		];
@@ -289,14 +289,14 @@ class ddMenuBuilder {
 						);
 					}
 					
-					$result['where'][] =
+					$result->where[] =
 						'`id` IN(' .
 						$params->providerParams['ids'] .
 						')'
 					;
 				}else{
 					//Never
-					$result['where'][] = '0 = 1';
+					$result->where[] = '0 = 1';
 				}
 			break;
 			
@@ -318,12 +318,12 @@ class ddMenuBuilder {
 					);
 				}
 				
-				$result['where'][] =
+				$result->where[] =
 					'`parent` IN(' .
 					$params->providerParams['parentIds'] .
 					')'
 				;
-				$result['depth'] = $params->providerParams['depth'];
+				$result->depth = $params->providerParams['depth'];
 			break;
 		}
 		
