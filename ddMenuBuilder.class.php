@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 4.1 (2020-03-03)
+ * @version 4.2 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -13,6 +13,20 @@
 class ddMenuBuilder {
 	private
 		$hereDocId,
+		
+		/**
+		 * @var $templates {stdClass}
+		 * @var $templates->item {string}
+		 * @var $templates->itemHere {string}
+		 * @var $templates->itemActive {string}
+		 * @var $templates->itemUnpub {string}
+		 * @var $templates->itemUnpubActive {string}
+		 * @var $templates->itemParent {string}
+		 * @var $templates->itemParentHere {string}
+		 * @var $templates->itemParentActive {string}
+		 * @var $templates->itemParentUnpub {string}
+		 * @var $templates->itemParentUnpubActive {string}
+		 */
 		$templates = [
 			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
@@ -35,7 +49,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.7.1 (2020-03-03)
+	 * @version 1.8 (2020-03-03)
 	 * 
 	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -44,12 +58,12 @@ class ddMenuBuilder {
 	 * @param $params->templates {array} — Шаблоны элементов меню. Default: $this->templates.
 	 * @param $params->templates['item'] {array} — Шаблон элемента. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
 	 * @param $params->templates['itemHere'] {array} — Шаблон текущего элемента (когда находимся на этой странице). Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
-	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates['itemHere'].
+	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates->itemHere.
 	 * @param $params->templates['itemParent'] {array} — Шаблон элемента-родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
 	 * @param $params->templates['itemParentHere'] {array} — Шаблон активного элемента-родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
-	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
-	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
-	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
+	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates->itemParentHere.
+	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates->itemParent.
+	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates->itemParentActive.
 	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
 	public function __construct($params = []){
@@ -73,25 +87,27 @@ class ddMenuBuilder {
 			(array) $params
 		);
 		
+		$this->templates = (object) $this->templates;
+		
 		//Если шаблоны переданы
 		if (!empty($params->templates)){
 			//Перебираем шаблоны объекта
 			foreach (
 				$params->templates as
-				$templateName => $templateContent
+				$templateName =>
+				$templateContent
 			){
 				//Если шаблон передан — сохраняем
-				if (array_key_exists(
-					$templateName,
-					$this->templates
+				if (property_exists(
+					$this->templates,
+					$templateName
 				)){
-					$params->templates[$templateName] = \ddTools::$modx->getTpl($params->templates[$templateName]);
-				}else{
-					//Remove invalid templates
-					unset($params->templates[$templateName]);
+					$this->templates->{$templateName} = \ddTools::$modx->getTpl($templateContent);
 				}
 			}
 		}
+		
+		unset($params->templates);
 		
 		//Все параметры задают свойства объекта
 		foreach (
@@ -108,32 +124,32 @@ class ddMenuBuilder {
 		}
 		
 		//Шаблон активного элемента по умолчанию равен шаблону текущего элемента
-		if (is_null($this->templates['itemActive'])){
-			$this->templates['itemActive'] = $this->templates['itemHere'];
+		if (is_null($this->templates->itemActive)){
+			$this->templates->itemActive = $this->templates->itemHere;
 		}
 		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
-		if (is_null($this->templates['itemUnpub'])){
-			$this->templates['itemUnpub'] = $this->templates['item'];
+		if (is_null($this->templates->itemUnpub)){
+			$this->templates->itemUnpub = $this->templates->item;
 		}
 		
 		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
-		if (is_null($this->templates['itemUnpubActive'])){
-			$this->templates['itemUnpubActive'] = $this->templates['itemActive'];
+		if (is_null($this->templates->itemUnpubActive)){
+			$this->templates->itemUnpubActive = $this->templates->itemActive;
 		}
 		
 		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
-		if (is_null($this->templates['itemParentActive'])){
-			$this->templates['itemParentActive'] = $this->templates['itemParentHere'];
+		if (is_null($this->templates->itemParentActive)){
+			$this->templates->itemParentActive = $this->templates->itemParentHere;
 		}
 		
 		//Шаблон неопубликованного элемента-родителя по умолчанию равен шаблону элемента-родителя
-		if (is_null($this->templates['itemParentUnpub'])){
-			$this->templates['itemParentUnpub'] = $this->templates['itemParent'];
+		if (is_null($this->templates->itemParentUnpub)){
+			$this->templates->itemParentUnpub = $this->templates->itemParent;
 		}
 		
 		//Шаблон неопубликованного активного элемента-родителя по умолчанию равен шаблону активного элемента-родителя
-		if (is_null($this->templates['itemParentUnpubActive'])){
-			$this->templates['itemParentUnpubActive'] = $this->templates['itemParentActive'];
+		if (is_null($this->templates->itemParentUnpubActive)){
+			$this->templates->itemParentUnpubActive = $this->templates->itemParentActive;
 		}
 		
 		//Валидация типов
@@ -154,7 +170,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.3 (2019-06-08)
+	 * @version 1.3.1 (2020-03-03)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -179,18 +195,18 @@ class ddMenuBuilder {
 				//Если текущий пункт является активным
 				if ($params->docId == $this->hereDocId){
 					//Шаблон активного родительского пункта меню
-					$result = $this->templates['itemParentHere'];
+					$result = $this->templates->itemParentHere;
 				//Если не не активный
 				}else{
 					//Если один из дочерних был активным
 					if ($params->hasActiveChildren){
 						//Сообщаем, что что-то активное есть
 						//Шаблон родительского пункта меню, когда активный один из дочерних
-						$result = $this->templates['itemParentActive'];
+						$result = $this->templates->itemParentActive;
 					//Если активных дочерних не было
 					}else{
 						//Шаблон родительского пункта меню
-						$result = $this->templates['itemParent'];
+						$result = $this->templates->itemParent;
 					}
 				}
 			//Если не опубликован
@@ -199,11 +215,11 @@ class ddMenuBuilder {
 				if ($params->hasActiveChildren){
 					//Сообщаем, что что-то активное есть
 					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
-					$result = $this->templates['itemParentUnpubActive'];
+					$result = $this->templates->itemParentUnpubActive;
 				//Если активных дочерних не было
 				}else{
 					//Шаблон неопубликованного родительского пункта меню
-					$result = $this->templates['itemParentUnpub'];
+					$result = $this->templates->itemParentUnpub;
 				}
 			}
 		//Если дочерних нет (отображаемых дочерних)
@@ -227,22 +243,22 @@ class ddMenuBuilder {
 					//Если текущий пункт является активным
 					if ($params->docId == $this->hereDocId){
 						//Шаблон активного пункта
-						$result = $this->templates['itemHere'];
+						$result = $this->templates->itemHere;
 					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
 					}else if($params->hasActiveChildren){
-						$result = $this->templates['itemActive'];
+						$result = $this->templates->itemActive;
 					//Если не не активный
 					}else{
 						//Шаблон пункта меню
-						$result = $this->templates['item'];
+						$result = $this->templates->item;
 					}
 				}else{
 					//Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
 					if ($params->hasActiveChildren){
-						$result = $this->templates['itemUnpubActive'];
+						$result = $this->templates->itemUnpubActive;
 					}else{
 						//Шаблон неопубликованного пункта меню
-						$result = $this->templates['itemUnpub'];
+						$result = $this->templates->itemUnpub;
 					}
 				}
 			}
