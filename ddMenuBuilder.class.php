@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 3.0 (2020-03-03)
+ * @version 3.0.1 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -332,7 +332,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 4.0 (2020-03-03)
+	 * @version 4.0.1 (2020-03-03)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -398,6 +398,8 @@ class ddMenuBuilder {
 		if (\ddTools::$modx->db->getRecordCount($dbRes) > 0){
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
+				$doc = (object) $doc;
+				
 				//Пустые дети
 				$children = (object) [
 					'hasActive' => false,
@@ -405,20 +407,20 @@ class ddMenuBuilder {
 					'outputString' => ''
 				];
 				//И для вывода тоже пустые
-				$doc['children'] = $children;
+				$doc->children = $children;
 				//Количество отображаемых потомков всех уровней
-				$doc['totalAllChildren'] = 0;
+				$doc->totalAllChildren = 0;
 				//Количество отображаемых непосредственных потомков
-				$doc['totalThisLevelChildren'] = 0;
+				$doc->totalThisLevelChildren = 0;
 				
 				//Если это папка (т.е., могут быть дочерние)
-				if ($doc['isfolder']){
+				if ($doc->isfolder){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = $this->generate([
 						'where' => [
 							'parent' =>
 								'`parent` = ' .
-								$doc['id']
+								$doc->id
 							,
 							//Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
@@ -433,9 +435,9 @@ class ddMenuBuilder {
 					//Если надо выводить глубже
 					if ($params->depth > 1){
 						//Выводим детей
-						$doc['children'] = $children;
-						$doc['totalAllChildren'] = $children->totalAll;
-						$doc['totalThisLevelChildren'] = $children->totalThisLevel;
+						$doc->children = $children;
+						$doc->totalAllChildren = $children->totalAll;
+						$doc->totalThisLevelChildren = $children->totalThisLevel;
 					}
 				}
 				
@@ -443,12 +445,12 @@ class ddMenuBuilder {
 				if ($params->depth > 0){
 					//Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
-						'docId' => $doc['id'],
-						'docPublished' => !!$doc['published'],
+						'docId' => $doc->id,
+						'docPublished' => !!$doc->published,
 						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
-						'docShowedInMenu' => !$doc['hidemenu'],
+						'docShowedInMenu' => !$doc->hidemenu,
 						'hasActiveChildren' => $children->hasActive,
-						'hasChildrenOutput' => $doc['children']->outputString != ''
+						'hasChildrenOutput' => $doc->children->outputString != ''
 					]);
 					
 					//Если шаблон определён (документ надо выводить)
@@ -458,13 +460,13 @@ class ddMenuBuilder {
 						$result->totalThisLevel++;
 						
 						//Если вдруг меню у документа не задано, выставим заголовок вместо него
-						if (trim($doc['menutitle']) == ''){
-							$doc['menutitle'] = $doc['pagetitle'];
+						if (trim($doc->menutitle) == ''){
+							$doc->menutitle = $doc->pagetitle;
 						}
 						
 						//Подготовим к парсингу
-						$doc['children'] = $doc['children']->outputString;
-						$doc['level'] = $params->level;
+						$doc->children = $doc->children->outputString;
+						$doc->level = $params->level;
 						
 						//Парсим
 						$result->outputString .= ddTools::parseText([
@@ -476,7 +478,7 @@ class ddMenuBuilder {
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
 				if (
-					$doc['id'] == $this->hereDocId ||
+					$doc->id == $this->hereDocId ||
 					$children->hasActive
 				){
 					$result->hasActive = true;
