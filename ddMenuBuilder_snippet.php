@@ -30,7 +30,7 @@
  * @param $showInMenuOnly {0|1} — Show only documents visible in the menu. Default: 1.
  * 
  * Template parameters:
- * @param $templates {stirng_json|string_queryFormated} — Templates. All templates can be set as chunk name or code via “@CODE:” prefix. Placeholders available in all templates: [+id+], [+menutitle+] (will be equal to [+pagetitle+] if empty), [+pagetitle+], [+published+], [+isfolder+].
+ * @param $templates {stirng_json|string_queryFormated} — Templates. All templates can be set as chunk name or code via “@CODE:” prefix. Placeholders available in all templates: [+id+], [+menutitle+] (will be equal to [+pagetitle+] if empty), [+pagetitle+], [+published+], [+isfolder+], [+totalAllChildren+], [+totalThisLevelChildren+].
  * @param $templates['item'] {string_chunkName|string} — The menu item template. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
  * @param $templates['itemHere'] {string_chunkName|string} — The menu item template for the current document. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
  * @param $templates['itemActive'] {string_chunkName|string} — The menu item template for a document which is one of the parents to the current document when the current document doesn't displayed in the menu (e. g. excluded by the “depth” parameter). Default: $templates['itemHere'].
@@ -103,6 +103,8 @@ if (!empty($placeholders)){
 }
 
 $placeholders['children'] = $result['outputString'];
+$placeholders['totalAllChildren'] = $result['totalAll'];
+$placeholders['totalThisLevelChildren'] = $result['totalThisLevel'];
 
 return ddTools::parseText([
 	'text' => $templates['outer'],

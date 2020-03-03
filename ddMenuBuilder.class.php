@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.5.1 (2019-11-29)
+ * @version 2.6 (2019-11-29)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -321,7 +321,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.2.1 (2019-11-29)
+	 * @version 3.3 (2019-11-29)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -332,6 +332,8 @@ class ddMenuBuilder {
 	 * 
 	 * @return $result {array_associative}
 	 * @return $result['hasActive'] {boolean}
+	 * @return $result['totalAll'] {integer} — Количество отображаемых пунктов всех уровней.
+	 * @return $result['totalThisLevel'] {integer} — Количество отображаемых пунктов этого уровня.
 	 * @return $result['outputString'] {string}
 	 */
 	public function generate($params){
@@ -346,6 +348,9 @@ class ddMenuBuilder {
 		$result = [
 			//Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
+			//Как и вообще пунктов
+			'totalAll' => 0,
+			'totalThisLevel' => 0,
 			//Результирующая строка
 			'outputString' => ''
 		];
@@ -382,10 +387,15 @@ class ddMenuBuilder {
 				//Пустые дети
 				$children = [
 					'hasActive' => false,
+					'totalAll' => 0,
 					'outputString' => ''
 				];
 				//И для вывода тоже пустые
 				$doc['children'] = $children;
+				//Количество отображаемых потомков всех уровней
+				$doc['totalAllChildren'] = 0;
+				//Количество отображаемых непосредственных потомков
+				$doc['totalThisLevelChildren'] = 0;
 				
 				//Если это папка (т.е., могут быть дочерние)
 				if ($doc['isfolder']){
@@ -399,10 +409,15 @@ class ddMenuBuilder {
 						'depth' => $params->depth - 1
 					]);
 					
+					//Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
+					$result['totalAll'] += $children['totalAll'];
+					
 					//Если надо выводить глубже
 					if ($params->depth > 1){
 						//Выводим детей
 						$doc['children'] = $children;
+						$doc['totalAllChildren'] = $children['totalAll'];
+						$doc['totalThisLevelChildren'] = $children['totalThisLevel'];
 					}
 				}
 				
@@ -420,6 +435,10 @@ class ddMenuBuilder {
 					
 					//Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
+						//Пунктов меню становится больше
+						$result['totalAll']++;
+						$result['totalThisLevel']++;
+						
 						//Если вдруг меню у документа не задано, выставим заголовок вместо него
 						if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
 						
