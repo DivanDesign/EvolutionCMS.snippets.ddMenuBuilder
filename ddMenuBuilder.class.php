@@ -1,7 +1,7 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.7 (2020-03-03)
+ * @version 2.7.1 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
@@ -35,9 +35,9 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.7 (2019-06-08)
+	 * @version 1.7.1 (2020-03-03)
 	 * 
-	 * @param $params {array_associative|stdClass} — The object of params.
+	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
@@ -56,7 +56,10 @@ class ddMenuBuilder {
 		global $modx;
 		
 		//Include (MODX)EvolutionCMS.libraries.ddTools
-		require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+		require_once(
+			$modx->getConfig('base_path') .
+			'assets/libs/ddTools/modx.ddtools.class.php'
+		);
 		
 		//Defaults
 		$params = (object) array_merge(
@@ -155,7 +158,7 @@ class ddMenuBuilder {
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->docId {integer} — ID документа. @required
 	 * @param $params->docPublished {boolean} — Признак публикации документа. @required
 	 * @param $params->docShowedInMenu {boolean} — Признак отображения документа в меню. @required
@@ -250,13 +253,13 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.1.1 (2019-06-08)
+	 * @version 0.1.2 (2020-03-03)
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
-	 * @param $params->providerParams {array_associative} — Parameters to be passed to the provider.
+	 * @param $params->providerParams {arrayAssociative} — Parameters to be passed to the provider.
 	 * 
-	 * @return {array_associative}
+	 * @return {arrayAssociative}
 	 */
 	public function prepareProviderParams($params = []){
 		//Defaults
@@ -286,15 +289,19 @@ class ddMenuBuilder {
 						);
 					}
 					
-					$result['where'][] = '`id` IN(' . $params->providerParams['ids'] . ')';
+					$result['where'][] =
+						'`id` IN(' .
+						$params->providerParams['ids'] .
+						')'
+					;
 				}else{
 					//Never
 					$result['where'][] = '0 = 1';
 				}
 			break;
 			
-			default:
 			case 'parent':
+			default:
 				//Defaults
 				$params->providerParams = array_merge(
 					[
@@ -311,7 +318,11 @@ class ddMenuBuilder {
 					);
 				}
 				
-				$result['where'][] = '`parent` IN(' . $params->providerParams['parentIds'] . ')';
+				$result['where'][] =
+					'`parent` IN(' .
+					$params->providerParams['parentIds'] .
+					')'
+				;
 				$result['depth'] = $params->providerParams['depth'];
 			break;
 		}
@@ -321,17 +332,17 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.4 (2020-03-03)
+	 * @version 3.4.1 (2020-03-03)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->where {array} — Условия выборки. @required
 	 * @param $params->where[i] {string} — Условие. @required
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
 	 * @param $params->level {integer} — For internal using only, not recommended to pass it. Default: 1.
 	 * 
-	 * @return $result {array_associative}
+	 * @return $result {arrayAssociative}
 	 * @return $result['hasActive'] {boolean}
 	 * @return $result['totalAll'] {integer} — Количество отображаемых пунктов всех уровней.
 	 * @return $result['totalThisLevel'] {integer} — Количество отображаемых пунктов этого уровня.
@@ -405,7 +416,10 @@ class ddMenuBuilder {
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = $this->generate([
 						'where' => [
-							'parent' => '`parent` = ' . $doc['id'],
+							'parent' =>
+								'`parent` = ' .
+								$doc['id']
+							,
 							//Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
 						],
@@ -444,11 +458,14 @@ class ddMenuBuilder {
 						$result['totalThisLevel']++;
 						
 						//Если вдруг меню у документа не задано, выставим заголовок вместо него
-						if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
+						if (trim($doc['menutitle']) == ''){
+							$doc['menutitle'] = $doc['pagetitle'];
+						}
 						
 						//Подготовим к парсингу
 						$doc['children'] = $doc['children']['outputString'];
 						$doc['level'] = $params->level;
+						
 						//Парсим
 						$result['outputString'] .= ddTools::parseText([
 							'text' => $tpl,
