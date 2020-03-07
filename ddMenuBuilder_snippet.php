@@ -3,11 +3,7 @@
  * ddMenuBuilder
  * @version 2.0 (2019-06-13)
  * 
- * @desc Fresh, simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.
- * 
- * @uses PHP >= 5.6.
- * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
+ * @see README.md
  * 
  * Data provider parameters:
  * @param $provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
