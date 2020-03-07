@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMenuBuilder
- * @version 2.0 (2019-06-13)
+ * @version 2.1 (2020-03-07)
  * 
  * @see README.md
  * 
@@ -49,7 +49,7 @@
  * 
  * @link http://code.divandesign.biz/modx/ddmenubuilder
  * 
- * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2020 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем класс (ddTools подключится там)

@@ -1,6 +1,29 @@
 # (MODX)EvolutionCMS.snippets.ddMenuBuilder changelog
 
 
+## Version 2.1 (2020-03-07)
+* \+ Snippet: All templates has the following placeholders:
+	* \+ `[+totalAllChildren+]` — total number of displayed children at all levels.
+	* \+ `[+totalThisLevelChildren+]` — total number of displayed immediate children.
+	* \+ `[+level+]` — item level in menu.
+* \* `\ddMenuBuilder`
+	* \+ `\ddMenuBuilder::generate`:
+		* \+ Return the following 2 counters:
+			* \+ `$result['totalAll']` — total number of items displayed at all levels.
+			* \+ `$result['totalThisLevel']` — total number of items displayed at this level.
+		* \+ Added the parameter `$params->level` for internal use only.
+		* \* Returns `stdClass` instead of `arrayAssociative`.
+	* \* `\ddMenuBuilder::prepareProviderParams`:
+		* \+ The `$params->providerParams` parameter can be set as `stdClass` too.
+		* \* Returns `stdClass` instead of `arrayAssociative`.
+	* \* `\ddMenuBuilder::$templates`: Now it's `stdClass`.
+* \+ Composer.json.
+* \+ CHANGELOG: Small improvements.
+* \+ README:
+	* \+ Requires.
+	* \+ Documentation → Installation.
+
+
 ## Version 2.0 (2019-06-13)
 * \* Attention! Backward compatibility is broken!
 * \* Attention! (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 is required.
