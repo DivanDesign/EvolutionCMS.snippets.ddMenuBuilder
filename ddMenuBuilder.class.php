@@ -1,18 +1,32 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 2.5 (2019-06-08)
+ * @version 4.2 (2020-03-03)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
  * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
  * 
- * @copyright 2009–2019 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2020 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
 	private
 		$hereDocId,
+		
+		/**
+		 * @var $templates {stdClass}
+		 * @var $templates->item {string}
+		 * @var $templates->itemHere {string}
+		 * @var $templates->itemActive {string}
+		 * @var $templates->itemUnpub {string}
+		 * @var $templates->itemUnpubActive {string}
+		 * @var $templates->itemParent {string}
+		 * @var $templates->itemParentHere {string}
+		 * @var $templates->itemParentActive {string}
+		 * @var $templates->itemParentUnpub {string}
+		 * @var $templates->itemParentUnpubActive {string}
+		 */
 		$templates = [
 			'item' => '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
 			'itemHere' => '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>',
@@ -35,28 +49,31 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.7 (2019-06-08)
+	 * @version 1.8 (2020-03-03)
 	 * 
-	 * @param $params {array_associative|stdClass} — The object of params.
+	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
 	 * @param $params->templates {array} — Шаблоны элементов меню. Default: $this->templates.
 	 * @param $params->templates['item'] {array} — Шаблон элемента. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
 	 * @param $params->templates['itemHere'] {array} — Шаблон текущего элемента (когда находимся на этой странице). Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
-	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates['itemHere'].
+	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates->itemHere.
 	 * @param $params->templates['itemParent'] {array} — Шаблон элемента-родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
 	 * @param $params->templates['itemParentHere'] {array} — Шаблон активного элемента-родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
-	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates['itemParentHere'].
-	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates['itemParent'].
-	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates['itemParentActive'].
+	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates->itemParentHere.
+	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates->itemParent.
+	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates->itemParentActive.
 	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
 	public function __construct($params = []){
 		global $modx;
 		
 		//Include (MODX)EvolutionCMS.libraries.ddTools
-		require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+		require_once(
+			$modx->getConfig('base_path') .
+			'assets/libs/ddTools/modx.ddtools.class.php'
+		);
 		
 		//Defaults
 		$params = (object) array_merge(
@@ -70,25 +87,27 @@ class ddMenuBuilder {
 			(array) $params
 		);
 		
+		$this->templates = (object) $this->templates;
+		
 		//Если шаблоны переданы
 		if (!empty($params->templates)){
 			//Перебираем шаблоны объекта
 			foreach (
 				$params->templates as
-				$templateName => $templateContent
+				$templateName =>
+				$templateContent
 			){
 				//Если шаблон передан — сохраняем
-				if (array_key_exists(
-					$templateName,
-					$this->templates
+				if (property_exists(
+					$this->templates,
+					$templateName
 				)){
-					$params->templates[$templateName] = \ddTools::$modx->getTpl($params->templates[$templateName]);
-				}else{
-					//Remove invalid templates
-					unset($params->templates[$templateName]);
+					$this->templates->{$templateName} = \ddTools::$modx->getTpl($templateContent);
 				}
 			}
 		}
+		
+		unset($params->templates);
 		
 		//Все параметры задают свойства объекта
 		foreach (
@@ -105,32 +124,32 @@ class ddMenuBuilder {
 		}
 		
 		//Шаблон активного элемента по умолчанию равен шаблону текущего элемента
-		if (is_null($this->templates['itemActive'])){
-			$this->templates['itemActive'] = $this->templates['itemHere'];
+		if (is_null($this->templates->itemActive)){
+			$this->templates->itemActive = $this->templates->itemHere;
 		}
 		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
-		if (is_null($this->templates['itemUnpub'])){
-			$this->templates['itemUnpub'] = $this->templates['item'];
+		if (is_null($this->templates->itemUnpub)){
+			$this->templates->itemUnpub = $this->templates->item;
 		}
 		
 		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
-		if (is_null($this->templates['itemUnpubActive'])){
-			$this->templates['itemUnpubActive'] = $this->templates['itemActive'];
+		if (is_null($this->templates->itemUnpubActive)){
+			$this->templates->itemUnpubActive = $this->templates->itemActive;
 		}
 		
 		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
-		if (is_null($this->templates['itemParentActive'])){
-			$this->templates['itemParentActive'] = $this->templates['itemParentHere'];
+		if (is_null($this->templates->itemParentActive)){
+			$this->templates->itemParentActive = $this->templates->itemParentHere;
 		}
 		
 		//Шаблон неопубликованного элемента-родителя по умолчанию равен шаблону элемента-родителя
-		if (is_null($this->templates['itemParentUnpub'])){
-			$this->templates['itemParentUnpub'] = $this->templates['itemParent'];
+		if (is_null($this->templates->itemParentUnpub)){
+			$this->templates->itemParentUnpub = $this->templates->itemParent;
 		}
 		
 		//Шаблон неопубликованного активного элемента-родителя по умолчанию равен шаблону активного элемента-родителя
-		if (is_null($this->templates['itemParentUnpubActive'])){
-			$this->templates['itemParentUnpubActive'] = $this->templates['itemParentActive'];
+		if (is_null($this->templates->itemParentUnpubActive)){
+			$this->templates->itemParentUnpubActive = $this->templates->itemParentActive;
 		}
 		
 		//Валидация типов
@@ -151,11 +170,11 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.3 (2019-06-08)
+	 * @version 1.3.1 (2020-03-03)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->docId {integer} — ID документа. @required
 	 * @param $params->docPublished {boolean} — Признак публикации документа. @required
 	 * @param $params->docShowedInMenu {boolean} — Признак отображения документа в меню. @required
@@ -176,18 +195,18 @@ class ddMenuBuilder {
 				//Если текущий пункт является активным
 				if ($params->docId == $this->hereDocId){
 					//Шаблон активного родительского пункта меню
-					$result = $this->templates['itemParentHere'];
+					$result = $this->templates->itemParentHere;
 				//Если не не активный
 				}else{
 					//Если один из дочерних был активным
 					if ($params->hasActiveChildren){
 						//Сообщаем, что что-то активное есть
 						//Шаблон родительского пункта меню, когда активный один из дочерних
-						$result = $this->templates['itemParentActive'];
+						$result = $this->templates->itemParentActive;
 					//Если активных дочерних не было
 					}else{
 						//Шаблон родительского пункта меню
-						$result = $this->templates['itemParent'];
+						$result = $this->templates->itemParent;
 					}
 				}
 			//Если не опубликован
@@ -196,11 +215,11 @@ class ddMenuBuilder {
 				if ($params->hasActiveChildren){
 					//Сообщаем, что что-то активное есть
 					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
-					$result = $this->templates['itemParentUnpubActive'];
+					$result = $this->templates->itemParentUnpubActive;
 				//Если активных дочерних не было
 				}else{
 					//Шаблон неопубликованного родительского пункта меню
-					$result = $this->templates['itemParentUnpub'];
+					$result = $this->templates->itemParentUnpub;
 				}
 			}
 		//Если дочерних нет (отображаемых дочерних)
@@ -224,22 +243,22 @@ class ddMenuBuilder {
 					//Если текущий пункт является активным
 					if ($params->docId == $this->hereDocId){
 						//Шаблон активного пункта
-						$result = $this->templates['itemHere'];
+						$result = $this->templates->itemHere;
 					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
 					}else if($params->hasActiveChildren){
-						$result = $this->templates['itemActive'];
+						$result = $this->templates->itemActive;
 					//Если не не активный
 					}else{
 						//Шаблон пункта меню
-						$result = $this->templates['item'];
+						$result = $this->templates->item;
 					}
 				}else{
 					//Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
 					if ($params->hasActiveChildren){
-						$result = $this->templates['itemUnpubActive'];
+						$result = $this->templates->itemUnpubActive;
 					}else{
 						//Шаблон неопубликованного пункта меню
-						$result = $this->templates['itemUnpub'];
+						$result = $this->templates->itemUnpub;
 					}
 				}
 			}
@@ -250,24 +269,29 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.1.1 (2019-06-08)
+	 * @version 0.3 (2020-03-03)
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
-	 * @param $params->providerParams {array_associative} — Parameters to be passed to the provider.
+	 * @param $params->providerParams {stdClass|arrayAssociative} — Parameters to be passed to the provider.
 	 * 
-	 * @return {array_associative}
+	 * @return {stdClass}
 	 */
 	public function prepareProviderParams($params = []){
 		//Defaults
 		$params = (object) array_merge(
 			[
-				'provider' => 'parent'
+				'provider' => 'parent',
+				'providerParams' => []
 			],
 			(array) $params
 		);
 		
-		$result = [
+		if (is_array($params->providerParams)){
+			$params->providerParams = (object) $params->providerParams;
+		}
+		
+		$result = (object) [
 			'where' => [],
 			'depth' => 1
 		];
@@ -276,43 +300,51 @@ class ddMenuBuilder {
 			case 'select':
 				//Required paremeter
 				if (
-					isset($params->providerParams['ids']) &&
-					!empty($params->providerParams['ids'])
+					isset($params->providerParams->ids) &&
+					!empty($params->providerParams->ids)
 				){
-					if (is_array($params->providerParams['ids'])){
-						$params->providerParams['ids'] = implode(
+					if (is_array($params->providerParams->ids)){
+						$params->providerParams->ids = implode(
 							',',
-							$params->providerParams['ids']
+							$params->providerParams->ids
 						);
 					}
 					
-					$result['where'][] = '`id` IN(' . $params->providerParams['ids'] . ')';
+					$result->where[] =
+						'`id` IN(' .
+						$params->providerParams->ids .
+						')'
+					;
 				}else{
 					//Never
-					$result['where'][] = '0 = 1';
+					$result->where[] = '0 = 1';
 				}
 			break;
 			
-			default:
 			case 'parent':
+			default:
 				//Defaults
-				$params->providerParams = array_merge(
+				$params->providerParams = (object) array_merge(
 					[
 						'parentIds' => 0,
 						'depth' => 1
 					],
-					$params->providerParams
+					(array) $params->providerParams
 				);
 				
-				if (is_array($params->providerParams['parentIds'])){
-					$params->providerParams['parentIds'] = implode(
+				if (is_array($params->providerParams->parentIds)){
+					$params->providerParams->parentIds = implode(
 						',',
-						$params->providerParams['parentIds']
+						$params->providerParams->parentIds
 					);
 				}
 				
-				$result['where'][] = '`parent` IN(' . $params->providerParams['parentIds'] . ')';
-				$result['depth'] = $params->providerParams['depth'];
+				$result->where[] =
+					'`parent` IN(' .
+					$params->providerParams->parentIds .
+					')'
+				;
+				$result->depth = $params->providerParams->depth;
 			break;
 		}
 		
@@ -321,26 +353,39 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 3.2 (2019-06-08)
+	 * @version 4.0.1 (2020-03-03)
 	 * 
 	 * @desc Сторит меню.
 	 * 
-	 * @param $params {stdClass|array_associative} — The object of params. @required
+	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->where {array} — Условия выборки. @required
 	 * @param $params->where[i] {string} — Условие. @required
 	 * @param $params->depth {integer} — Глубина поиска. Default: 1.
+	 * @param $params->level {integer} — For internal using only, not recommended to pass it. Default: 1.
 	 * 
-	 * @return {array}
+	 * @return $result {stdClass}
+	 * @return $result->hasActive {boolean}
+	 * @return $result->totalAll {integer} — Количество отображаемых пунктов всех уровней.
+	 * @return $result->totalThisLevel {integer} — Количество отображаемых пунктов этого уровня.
+	 * @return $result->outputString {string}
 	 */
 	public function generate($params){
 		//Defaults
-		$params = (object) array_merge([
-			'depth' => 1
-		], (array) $params);
+		$params = (object) array_merge(
+			[
+				'depth' => 1,
+				//For internal using only, not recommended to pass it
+				'level' => 1
+			],
+			(array) $params
+		);
 		
-		$result = [
+		$result = (object) [
 			//Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
+			//Как и вообще пунктов
+			'totalAll' => 0,
+			'totalThisLevel' => 0,
 			//Результирующая строка
 			'outputString' => ''
 		];
@@ -374,30 +419,46 @@ class ddMenuBuilder {
 		if (\ddTools::$modx->db->getRecordCount($dbRes) > 0){
 			//Проходимся по всем пунктам текущего уровня
 			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
+				$doc = (object) $doc;
+				
 				//Пустые дети
-				$children = [
+				$children = (object) [
 					'hasActive' => false,
+					'totalAll' => 0,
 					'outputString' => ''
 				];
 				//И для вывода тоже пустые
-				$doc['children'] = $children;
+				$doc->children = $children;
+				//Количество отображаемых потомков всех уровней
+				$doc->totalAllChildren = 0;
+				//Количество отображаемых непосредственных потомков
+				$doc->totalThisLevelChildren = 0;
 				
 				//Если это папка (т.е., могут быть дочерние)
-				if ($doc['isfolder']){
+				if ($doc->isfolder){
 					//Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = $this->generate([
 						'where' => [
-							'parent' => '`parent` = '.$doc['id'],
+							'parent' =>
+								'`parent` = ' .
+								$doc->id
+							,
 							//Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
 						],
-						'depth' => $params->depth - 1
+						'depth' => $params->depth - 1,
+						'level' => $params->level + 1
 					]);
+					
+					//Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
+					$result->totalAll += $children->totalAll;
 					
 					//Если надо выводить глубже
 					if ($params->depth > 1){
 						//Выводим детей
-						$doc['children'] = $children;
+						$doc->children = $children;
+						$doc->totalAllChildren = $children->totalAll;
+						$doc->totalThisLevelChildren = $children->totalThisLevel;
 					}
 				}
 				
@@ -405,23 +466,31 @@ class ddMenuBuilder {
 				if ($params->depth > 0){
 					//Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
-						'docId' => $doc['id'],
-						'docPublished' => !!$doc['published'],
+						'docId' => $doc->id,
+						'docPublished' => !!$doc->published,
 						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
-						'docShowedInMenu' => !$doc['hidemenu'],
-						'hasActiveChildren' => $children['hasActive'],
-						'hasChildrenOutput' => $doc['children']['outputString'] != ''
+						'docShowedInMenu' => !$doc->hidemenu,
+						'hasActiveChildren' => $children->hasActive,
+						'hasChildrenOutput' => $doc->children->outputString != ''
 					]);
 					
 					//Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
+						//Пунктов меню становится больше
+						$result->totalAll++;
+						$result->totalThisLevel++;
+						
 						//Если вдруг меню у документа не задано, выставим заголовок вместо него
-						if (trim($doc['menutitle']) == ''){$doc['menutitle'] = $doc['pagetitle'];}
+						if (trim($doc->menutitle) == ''){
+							$doc->menutitle = $doc->pagetitle;
+						}
 						
 						//Подготовим к парсингу
-						$doc['children'] = $doc['children']['outputString'];
+						$doc->children = $doc->children->outputString;
+						$doc->level = $params->level;
+						
 						//Парсим
-						$result['outputString'] .= ddTools::parseText([
+						$result->outputString .= ddTools::parseText([
 							'text' => $tpl,
 							'data' => $doc
 						]);
@@ -430,10 +499,10 @@ class ddMenuBuilder {
 				
 				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
 				if (
-					$doc['id'] == $this->hereDocId ||
-					$children['hasActive']
+					$doc->id == $this->hereDocId ||
+					$children->hasActive
 				){
-					$result['hasActive'] = true;
+					$result->hasActive = true;
 				}
 			}
 		}
