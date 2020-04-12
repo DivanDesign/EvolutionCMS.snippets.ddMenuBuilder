@@ -1,6 +1,11 @@
 # (MODX)EvolutionCMS.snippets.ddMenuBuilder changelog
 
 
+## Version 2.1.1 (2020-04-12)
+* \+ README: Improvements.
+* \+ README_ru.
+
+
 ## Version 2.1 (2020-03-07)
 * \+ Snippet: All templates has the following placeholders:
 	* \+ `[+totalAllChildren+]` — total number of displayed children at all levels.

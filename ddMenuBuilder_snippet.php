@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMenuBuilder
- * @version 2.1 (2020-03-07)
+ * @version 2.1.1 (2020-04-12)
  * 
  * @see README.md
  * 

@@ -20,7 +20,7 @@
 #### 1. Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
 
 1. Название сниппета: `ddMenuBuilder`.
-2. Описание: `<b>2.1</b> Simple and flexible template-driven menu builder.`.
+2. Описание: `<b>2.1.1</b> Simple and flexible template-driven menu builder.`.
 3. Категория: `Core → Navigation`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMenuBuilder_snippet.php` из архива.

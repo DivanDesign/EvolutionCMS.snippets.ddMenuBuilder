@@ -20,7 +20,7 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 #### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMenuBuilder`.
-2. Description: `<b>2.1</b> Simple and flexible template-driven menu builder.`.
+2. Description: `<b>2.1.1</b> Simple and flexible template-driven menu builder.`.
 3. Category: `Core → Navigation`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMenuBuilder_snippet.php` file from the archive.
