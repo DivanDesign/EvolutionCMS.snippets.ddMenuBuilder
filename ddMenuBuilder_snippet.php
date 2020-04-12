@@ -17,7 +17,7 @@ require_once(
 );
 
 //Prepare template params
-$templates = ddTools::encodedStringToArray($templates);
+$templates = \ddTools::encodedStringToArray($templates);
 
 $templates['outer'] =
 	isset($templates['outer']) ?
@@ -45,7 +45,7 @@ if (isset($showInMenuOnly)){
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
 
 //Prepare provider params
-$providerParams = ddTools::encodedStringToArray($providerParams);
+$providerParams = \ddTools::encodedStringToArray($providerParams);
 
 //Генерируем меню
 $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
@@ -60,7 +60,7 @@ $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
 
 //Данные, которые необоходимо передать в шаблон
 if (!empty($placeholders)){
-	$placeholders = ddTools::encodedStringToArray($placeholders);
+	$placeholders = \ddTools::encodedStringToArray($placeholders);
 }else{
 	$placeholders = [];
 }
@@ -69,7 +69,7 @@ $placeholders['children'] = $result->outputString;
 $placeholders['totalAllChildren'] = $result->totalAll;
 $placeholders['totalThisLevelChildren'] = $result->totalThisLevel;
 
-return ddTools::parseText([
+return \ddTools::parseText([
 	'text' => $templates['outer'],
 	'data' => $placeholders
 ]);
