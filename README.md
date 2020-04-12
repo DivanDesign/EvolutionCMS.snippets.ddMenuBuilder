@@ -37,6 +37,8 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 
 #### Data provider parameters
 
+Providers get documents data to output.
+
 * `provider`
 	* Desctription: Name of the provider that will be used to fetch documents.
 	* Valid values:
@@ -53,6 +55,8 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 
 
 ##### Providers → Parent (``&provider=`parent` ``)
+
+Select children documents from required parent(s).
 
 * `providerParams->parentIds`
 	* Desctription: Parent IDs — the starting points for the menu. Specify '0' to start from the site root.
@@ -72,7 +76,9 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 	* Default value: `1`
 
 
-##### Providers → Parent (``&provider=`select` ``)
+##### Providers → Select (``&provider=`select` ``)
+
+Just output selected documents.
 
 * `providerParams->ids`
 	* Desctription: Document IDs.
@@ -117,7 +123,7 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 	* Desctription: Templates.  
 		Placeholders available in all templates:
 		* `[+id+]`
-		* `[+menutitle+]` — will be equal to [+pagetitle+] if empty.
+		* `[+menutitle+]` — will be equal to `[+pagetitle+]` if empty.
 		* `[+pagetitle+]`
 		* `[+published+]`
 		* `[+isfolder+]`
