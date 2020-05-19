@@ -270,7 +270,7 @@ Just output selected documents.
 ```html
 [[ddMenuBuilder?
 	&templates=`
-		"outer": "@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]"
+		"outer": "@CODE:<ul class=\"[+class+]\">[+children+]</ul>[+somePlaceholder2+]"
 	`
 	&placeholders=`{
 		"class": "someClass",
