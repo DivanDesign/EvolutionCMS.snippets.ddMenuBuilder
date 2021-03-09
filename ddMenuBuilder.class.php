@@ -1,13 +1,13 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 4.2 (2020-03-03)
+ * @version 4.2.1 (2021-03-09)
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
  * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
  * 
- * @copyright 2009–2020 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2021 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 class ddMenuBuilder {
@@ -170,7 +170,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.3.1 (2020-03-03)
+	 * @version 1.3.2 (2021-03-09)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -245,7 +245,7 @@ class ddMenuBuilder {
 						//Шаблон активного пункта
 						$result = $this->templates->itemHere;
 					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
-					}else if($params->hasActiveChildren){
+					}elseif($params->hasActiveChildren){
 						$result = $this->templates->itemActive;
 					//Если не не активный
 					}else{
