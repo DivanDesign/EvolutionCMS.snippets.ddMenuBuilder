@@ -1,7 +1,7 @@
 {
 	"name": "dd/evolutioncms-snippets-ddmenubuilder",
 	"type": "modxevo-snippet",
-	"version": "2.1.1",
+	"version": "2.2.0",
 	"description": "Simple and flexible template-driven menu builder. Initially inspired by combination of the Wayfinder and Ditto advantages with significant code simplification.",
 	"keywords": [
 		"modx",

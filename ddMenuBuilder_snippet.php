@@ -1,13 +1,13 @@
 <?php
 /**
  * ddMenuBuilder
- * @version 2.1.1 (2020-04-12)
+ * @version 2.2 (2023-05-05)
  * 
  * @see README.md
  * 
  * @link http://code.divandesign.ru/modx/ddmenubuilder
  * 
- * @copyright 2009–2020 Ronef {@link https://Ronef.ru }
+ * @copyright 2009–2023 Ronef {@link https://Ronef.ru }
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools

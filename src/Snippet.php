@@ -3,7 +3,7 @@ namespace ddMenuBuilder;
 
 class Snippet extends \DDTools\Snippet {
 	protected
-		$version = '2.1.1',
+		$version = '2.2.0',
 		
 		$params = [
 			//Defaults
