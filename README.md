@@ -8,19 +8,41 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 
 * PHP >= 5.6
 * [(MODX)EvolutionCMS](https://github.com/evolution-cms/evolution) >= 1.1
-* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.24.1
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.ru/modx/ddtools) >= 0.59
 
 
-## Documentation
+## Installation
 
 
-### Installation
+### Using [(MODX)EvolutionCMS.libraries.ddInstaller](https://github.com/DivanDesign/EvolutionCMS.libraries.ddInstaller)
+
+Just run the following PHP code in your sources or [Console](https://github.com/vanchelo/MODX-Evolution-Ajax-Console):
+
+```php
+//Include (MODX)EvolutionCMS.libraries.ddInstaller
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddInstaller/require.php'
+);
+
+//Install (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDInstaller::install([
+	'url' => 'https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder',
+	'type' => 'snippet'
+]);
+```
+
+* If `ddMenuBuilder` is not exist on your site, `ddInstaller` will just install it.
+* If `ddMenuBuilder` is already exist on your site, `ddInstaller` will check it version and update it if needed.
+
+
+### Manually
 
 
 #### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMenuBuilder`.
-2. Description: `<b>2.1.1</b> Simple and flexible template-driven menu builder.`.
+2. Description: `<b>2.2</b> Simple and flexible template-driven menu builder.`.
 3. Category: `Core → Navigation`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMenuBuilder_snippet.php` file from the archive.
@@ -32,10 +54,10 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 2. Extract the archive to the folder (except `ddMenuBuilder_snippet.php`).
 
 
-### Parameters description
+## Parameters description
 
 
-#### Data provider parameters
+### Data provider parameters
 
 Providers get documents data to output.
 
@@ -50,11 +72,15 @@ Providers get documents data to output.
 	* Desctription: Parameters to be passed to the provider.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet` or `$modx->runSnippet`):
+			* `arrayAssociative`
+			* `object`
 	* Default value: —
 
 
-##### Providers → Parent (``&provider=`parent` ``)
+#### Providers → Parent (``&provider=`parent` ``)
 
 Select children documents from required parent(s).
 
@@ -76,7 +102,7 @@ Select children documents from required parent(s).
 	* Default value: `1`
 
 
-##### Providers → Select (``&provider=`select` ``)
+#### Providers → Select (``&provider=`select` ``)
 
 Just output selected documents.
 
@@ -93,7 +119,7 @@ Just output selected documents.
 	* **Required**
 
 
-#### General parameters
+### General parameters
 
 * `sortDir`
 	* Desctription: The sorting direction (by `menuindex` field).
@@ -117,7 +143,7 @@ Just output selected documents.
 	* Default value: `1`
 
 
-#### Template parameters
+### Template parameters
 
 * `templates`
 	* Desctription: Templates.  
@@ -132,11 +158,15 @@ Just output selected documents.
 		* `[+level+]`
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet` or `$modx->runSnippet`):
+			* `arrayAssociative`
+			* `object`
 	* Default value: —
 
 
-##### Item templates
+#### Item templates
 
 * `templates->item`
 	* Desctription: The menu item template.
@@ -174,7 +204,7 @@ Just output selected documents.
 	* Default value: = `templates->itemActive`
 
 
-##### Parent item templates
+#### Parent item templates
 
 * `templates->itemParent`
 	* Desctription: The menu item template for documents which has a children displayed in menu.
@@ -212,7 +242,7 @@ Just output selected documents.
 	* Default value: = `templates->itemParentActive`
 
 
-##### Outer template
+#### Outer template
 
 * `templates->outer`
 	* Desctription: Wrapper template.  
@@ -229,35 +259,41 @@ Just output selected documents.
 		Arrays are supported too: `some[a]=one&some[b]=two` => `[+some.a+]`, `[+some.b+]`; `some[]=one&some[]=two` => `[+some.0+]`, `[some.1]`.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet` or `$modx->runSnippet`):
+			* `arrayAssociative`
+			* `object`
 	* Default value: —
 
 
-### Examples
+## Examples
+
+All examples are written using [HJSON](https://hjson.github.io/), but if you want you can use vanilla JSON instead.
 
 
-#### Providers → Parent
+### Providers → Parent
 
 ```html
 [[ddMenuBuilder?
 	&provider=`parent`
 	&providerParams=`{
-		"parentId": 1,
-		"depth": 2
+		parentId: 1
+		depth: 2
 	}`
 ]]
 ```
 
 
-#### Providers → Select
+### Providers → Select
 
 ```html
 [[ddMenuBuilder?
 	&provider=`select`
 	&providerParams=`{
-		"ids": [
-			1,
-			2,
+		ids: [
+			1
+			2
 			3
 		]
 	}`
@@ -265,22 +301,25 @@ Just output selected documents.
 ```
 
 
-#### Pass additional data into outer chunk (the `placeholders` parameter)
+### Pass additional data into outer chunk (the `placeholders` parameter)
 
 ```html
 [[ddMenuBuilder?
-	&templates=`
-		"outer": "@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]"
-	`
+	&templates=`{
+		outer:
+			'''
+			@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]
+			'''
+	}`
 	&placeholders=`{
-		"class": "someClass",
-		"somePlaceholder2": "<p>Some value for placeholder.</p>"
+		class: someClass
+		somePlaceholder2: <p>Some value for placeholder.</p>
 	}`
 ]]
 ```
 
 
-#### Using Query string instead of JSON
+### Using Query string instead of JSON
 
 JSON syntax is more clear than Query string, but sometimes it's not convenient. For example, if you want to pass JSON string as string.
 
@@ -294,7 +333,33 @@ JSON syntax is more clear than Query string, but sometimes it's not convenient. 
 ```
 
 
-## [Home page →](http://code.divandesign.biz/modx/ddmenubuilder)
+### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
+
+```php
+//Include (MODX)EvolutionCMS.libraries.ddTools
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
+
+//Run (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMenuBuilder',
+	'params' => [
+		'providerParams' => [
+			'parentId' => 1
+		]
+	]
+]);
+```
 
 
-<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
+## Links
+
+* [Home page](http://code.divandesign.ru/modx/ddmenubuilder)
+* [Telegram chat](https://t.me/dd_code)
+* [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmenubuilder)
+* [GitHub](https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder)
+
+
+<link rel="stylesheet" type="text/css" href="https://raw.githack.com/DivanDesign/CSS.ddMarkdown/master/style.min.css" />

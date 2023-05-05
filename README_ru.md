@@ -8,19 +8,41 @@
 
 * PHP >= 5.6
 * [(MODX)EvolutionCMS](https://github.com/evolution-cms/evolution) >= 1.1
-* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.24.1
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.ru/modx/ddtools) >= 0.59
 
 
-## Документация
+## Установка
 
 
-### Установка
+### Используя [(MODX)EvolutionCMS.libraries.ddInstaller](https://github.com/DivanDesign/EvolutionCMS.libraries.ddInstaller)
+
+Просто вызовите следующий код в своих исходинках или модуле [Console](https://github.com/vanchelo/MODX-Evolution-Ajax-Console):
+
+```php
+//Подключение (MODX)EvolutionCMS.libraries.ddInstaller
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddInstaller/require.php'
+);
+
+//Установка (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDInstaller::install([
+	'url' => 'https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder',
+	'type' => 'snippet'
+]);
+```
+
+* Если `ddMenuBuilder` отсутствует на вашем сайте, `ddInstaller` просто установит его.
+* Если `ddMenuBuilder` уже есть на вашем сайте, `ddInstaller` проверит его версию и обновит, если нужно. 
+
+
+### Вручную
 
 
 #### 1. Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
 
 1. Название сниппета: `ddMenuBuilder`.
-2. Описание: `<b>2.1.1</b> Simple and flexible template-driven menu builder.`.
+2. Описание: `<b>2.2</b> Simple and flexible template-driven menu builder.`.
 3. Категория: `Core → Navigation`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMenuBuilder_snippet.php` из архива.
@@ -32,10 +54,10 @@
 2. Извлеките содержимое архива в неё (за исключением файла `ddMenuBuilder_snippet.php`).
 
 
-### Описание параметров
+## Описание параметров
 
 
-#### Параметры провайдера данных
+### Параметры провайдера данных
 
 Провайдеры получают данные документов для вывода.
 
@@ -49,12 +71,16 @@
 * `providerParams`
 	* Описание: Параметры провайдера.
 	* Допустимые значения:
-		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringJsonObject` — в виде [JSON](https://ru.wikipedia.org/wiki/JSON)
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `arrayAssociative`
+			* `object`
 	* Значение по умолчанию: —
 
 
-##### Провайдеры → Parent (``&provider=`parent` ``)
+#### Провайдеры → Parent (``&provider=`parent` ``)
 
 Находит необходимые дочерние документы заданных родителей.
 
@@ -76,7 +102,7 @@
 	* Значение по умолчанию: `1`
 
 
-##### Провайдеры → Select (``&provider=`select` ``)
+#### Провайдеры → Select (``&provider=`select` ``)
 
 Просто выводит заданные документы.
 
@@ -93,7 +119,7 @@
 	* **Required**
 
 
-#### Общие параметры
+### Общие параметры
 
 * `sortDir`
 	* Описание: Направление сортировки (по полю `menuindex`).
@@ -117,7 +143,7 @@
 	* Значение по умолчанию: `1`
 
 
-#### Шаблоны
+### Шаблоны
 
 * `templates`
 	* Описание: Шаблоны.  
@@ -131,12 +157,16 @@
 		* `[+totalThisLevelChildren+]`
 		* `[+level+]`
 	* Допустимые значения:
-		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringJsonObject` — в виде [JSON](https://ru.wikipedia.org/wiki/JSON)
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `arrayAssociative`
+			* `object`
 	* Значение по умолчанию: —
 
 
-##### Шаблоны пунктов меню
+#### Шаблоны пунктов меню
 
 * `templates->item`
 	* Описание: Шаблон пункта меню.
@@ -174,7 +204,7 @@
 	* Значение по умолчанию: = `templates->itemActive`
 
 
-##### Шаблоны пунктов-родителей (содержащих вложенное меню)
+#### Шаблоны пунктов-родителей (содержащих вложенное меню)
 
 * `templates->itemParent`
 	* Описание: Шаблон пункта меню, содержащего дочернее меню.
@@ -212,7 +242,7 @@
 	* Значение по умолчанию: = `templates->itemParentActive`
 
 
-##### Шаблон внешней обертки меню
+#### Шаблон внешней обертки меню
 
 * `templates->outer`
 	* Описание: Шаблон внешней обертки меню.  
@@ -228,36 +258,42 @@
 		Дополнительные данные, которые необходимо передать в `templates->outer`.  
 		Массивы также поддерживаются: `some[a]=one&some[b]=two` => `[+some.a+]`, `[+some.b+]`; `some[]=one&some[]=two` => `[+some.0+]`, `[some.1]`.
 	* Допустимые значения:
-		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) объекта
-		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringJsonObject` — в виде [JSON](https://ru.wikipedia.org/wiki/JSON)
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `arrayAssociative`
+			* `object`
 	* Значение по умолчанию: —
 
 
-### Примеры
+## Примеры
+
+Все примеры написаны с использованием [HJSON](https://hjson.github.io/), но вместо него можно также использвоать обычный JSON.
 
 
-#### Провайдеры → Parent
+### Провайдеры → Parent
 
 ```html
 [[ddMenuBuilder?
 	&provider=`parent`
 	&providerParams=`{
-		"parentId": 1,
-		"depth": 2
+		parentId: 1
+		depth: 2
 	}`
 ]]
 ```
 
 
-#### Провайдеры → Select
+### Провайдеры → Select
 
 ```html
 [[ddMenuBuilder?
 	&provider=`select`
 	&providerParams=`{
-		"ids": [
-			1,
-			2,
+		ids: [
+			1
+			2
 			3
 		]
 	}`
@@ -265,22 +301,25 @@
 ```
 
 
-#### Передача дополнительных данных в шаблон внешней обёртки (параметр `placeholders`)
+### Передача дополнительных данных в шаблон внешней обёртки (параметр `placeholders`)
 
 ```html
 [[ddMenuBuilder?
-	&templates=`
-		"outer": "@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]"
-	`
+	&templates=`{
+		outer:
+			'''
+			@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]
+			'''
+	}`
 	&placeholders=`{
-		"class": "someClass",
-		"somePlaceholder2": "<p>Some value for placeholder.</p>"
+		class: someClass
+		somePlaceholder2: <p>Some value for placeholder.</p>
 	}`
 ]]
 ```
 
 
-#### Использование Query string вместо JSON
+### Использование Query string вместо JSON
 
 Синтаксис JSON более нагляден, чем Query string, но иногда не очень удобен. Например, когда вы хотите передать JSON строку, как строку, чтобы она не парсилась, как объект.
 
@@ -294,7 +333,32 @@
 ```
 
 
-## [Home page →](http://code.divandesign.biz/modx/ddmenubuilder)
+### Запустить сниппет через `\DDTools\Snippet::runSnippet` без DB и eval
+
+```php
+//Подключение (MODX)EvolutionCMS.libraries.ddTools
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
+
+//Запуск (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMenuBuilder',
+	'params' => [
+		'providerParams' => [
+			'parentId' => 1
+		]
+	]
+]);
+```
 
 
-<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
+## Ссылки
+* [Home page](http://code.divandesign.ru/modx/ddmenubuilder)
+* [Telegram chat](https://t.me/dd_code)
+* [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmenubuilder)
+* [GitHub](https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder)
+
+
+<link rel="stylesheet" type="text/css" href="https://raw.githack.com/DivanDesign/CSS.ddMarkdown/master/style.min.css" />

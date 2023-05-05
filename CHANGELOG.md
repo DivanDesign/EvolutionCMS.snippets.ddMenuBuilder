@@ -1,6 +1,15 @@
 # (MODX)EvolutionCMS.snippets.ddMenuBuilder changelog
 
 
+## Version 2.2 (2023-05-05)
+* \+ Parameters → `providerParams`, `templates`, `placeholders`: Can also be set as [HJSON](https://hjson.github.io/) or as a native PHP object/array.
+* \+ You can just call `\DDTools\Snippet::runSnippet` to run the snippet without DB and eval (see README → Examples).
+* \+ README:
+	* \+ Installation → Using (MODX)EvolutionCMS.libraries.ddInstaller.
+	* \+ Links.
+* \* Attention! (MODX)EvolutionCMS.libraries.ddTools >= 0.59 is required.
+
+
 ## Version 2.1.1 (2020-04-12)
 * \+ README: Improvements.
 * \+ README_ru.
@@ -140,5 +149,5 @@
 * \+ The first release.
 
 
-<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
+<link rel="stylesheet" type="text/css" href="https://raw.githack.com/DivanDesign/CSS.ddMarkdown/master/style.min.css" />
 <style>ul{list-style:none;}</style>
