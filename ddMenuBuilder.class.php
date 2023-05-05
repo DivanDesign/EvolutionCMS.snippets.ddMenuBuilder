@@ -5,9 +5,9 @@
  * 
  * @uses PHP >= 5.6.
  * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.biz/modx/ddtools }
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.ru/modx/ddtools }
  * 
- * @copyright 2009–2021 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2021 Ronef {@link https://Ronef.ru }
  */
 
 class ddMenuBuilder {

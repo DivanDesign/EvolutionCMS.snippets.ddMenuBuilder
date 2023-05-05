@@ -5,9 +5,9 @@
  * 
  * @see README.md
  * 
- * @link http://code.divandesign.biz/modx/ddmenubuilder
+ * @link http://code.divandesign.ru/modx/ddmenubuilder
  * 
- * @copyright 2009–2020 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2009–2020 Ronef {@link https://Ronef.ru }
  */
 
 //Подключаем класс (ddTools подключится там)
