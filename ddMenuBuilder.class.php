@@ -1,16 +1,7 @@
 <?php
-/**
- * modx ddMenuBuilder class
- * @version 4.3 (2023-05-05)
- * 
- * @uses PHP >= 5.6.
- * @uses (MODX)EvolutionCMS >= 1.1
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.59
- * 
- * @copyright 2009–2023 Ronef {@link https://Ronef.ru }
- */
+namespace ddMenuBuilder;
 
-class ddMenuBuilder {
+class Main {
 	private
 		$hereDocId,
 		
@@ -355,7 +346,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 4.0.2 (2023-05-05)
+	 * @version 4.0.3 (2023-05-05)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -412,7 +403,7 @@ class ddMenuBuilder {
 				`isfolder`,
 				`hidemenu`
 			FROM
-				' . ddTools::$tables['site_content'] . '
+				' . \ddTools::$tables['site_content'] . '
 			WHERE
 				' . $params->where . '
 			ORDER BY
@@ -494,7 +485,7 @@ class ddMenuBuilder {
 						$doc->level = $params->level;
 						
 						//Парсим
-						$result->outputString .= ddTools::parseText([
+						$result->outputString .= \ddTools::parseText([
 							'text' => $tpl,
 							'data' => $doc
 						]);

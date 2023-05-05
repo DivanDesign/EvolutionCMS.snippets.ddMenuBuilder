@@ -87,7 +87,7 @@ if (!empty($params->showInMenuOnly)){
 	$ddMenuBuilder_params->showInMenuOnly = $params->showInMenuOnly;
 }
 
-$ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
+$ddMenuBuilder = new \ddMenuBuilder\Main($ddMenuBuilder_params);
 
 //Генерируем меню
 $result = $ddMenuBuilder->generate($ddMenuBuilder->prepareProviderParams([
