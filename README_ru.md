@@ -269,6 +269,8 @@ require_once(
 
 ## Примеры
 
+Все примеры написаны с использованием [HJSON](https://hjson.github.io/), но вместо него можно также использвоать обычный JSON.
+
 
 ### Провайдеры → Parent
 
@@ -276,8 +278,8 @@ require_once(
 [[ddMenuBuilder?
 	&provider=`parent`
 	&providerParams=`{
-		"parentId": 1,
-		"depth": 2
+		parentId: 1
+		depth: 2
 	}`
 ]]
 ```
@@ -289,9 +291,9 @@ require_once(
 [[ddMenuBuilder?
 	&provider=`select`
 	&providerParams=`{
-		"ids": [
-			1,
-			2,
+		ids: [
+			1
+			2
 			3
 		]
 	}`
@@ -303,12 +305,15 @@ require_once(
 
 ```html
 [[ddMenuBuilder?
-	&templates=`
-		"outer": "@CODE:<ul class=\"[+class+]\">[+children+]</ul>[+somePlaceholder2+]"
-	`
+	&templates=`{
+		outer:
+			'''
+			@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]
+			'''
+	}`
 	&placeholders=`{
-		"class": "someClass",
-		"somePlaceholder2": "<p>Some value for placeholder.</p>"
+		class: someClass
+		somePlaceholder2: <p>Some value for placeholder.</p>
 	}`
 ]]
 ```

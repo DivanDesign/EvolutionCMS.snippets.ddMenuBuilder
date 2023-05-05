@@ -269,6 +269,8 @@ Just output selected documents.
 
 ## Examples
 
+All examples are written using [HJSON](https://hjson.github.io/), but if you want you can use vanilla JSON instead.
+
 
 ### Providers → Parent
 
@@ -276,8 +278,8 @@ Just output selected documents.
 [[ddMenuBuilder?
 	&provider=`parent`
 	&providerParams=`{
-		"parentId": 1,
-		"depth": 2
+		parentId: 1
+		depth: 2
 	}`
 ]]
 ```
@@ -289,9 +291,9 @@ Just output selected documents.
 [[ddMenuBuilder?
 	&provider=`select`
 	&providerParams=`{
-		"ids": [
-			1,
-			2,
+		ids: [
+			1
+			2
 			3
 		]
 	}`
@@ -303,12 +305,15 @@ Just output selected documents.
 
 ```html
 [[ddMenuBuilder?
-	&templates=`
-		"outer": "@CODE:<ul class=\"[+class+]\">[+children+]</ul>[+somePlaceholder2+]"
-	`
+	&templates=`{
+		outer:
+			'''
+			@CODE:<ul class="[+class+]">[+children+]</ul>[+somePlaceholder2+]
+			'''
+	}`
 	&placeholders=`{
-		"class": "someClass",
-		"somePlaceholder2": "<p>Some value for placeholder.</p>"
+		class: someClass
+		somePlaceholder2: <p>Some value for placeholder.</p>
 	}`
 ]]
 ```
