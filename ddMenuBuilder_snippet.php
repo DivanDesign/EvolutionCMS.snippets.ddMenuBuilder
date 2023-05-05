@@ -70,21 +70,21 @@ $params->placeholders = \DDTools\ObjectTools::convertType([
 
 
 //# Run
-$ddMenuBuilder_params = [
+$ddMenuBuilder_params = (object) [
 	'templates' => $params->templates
 ];
 
 //Направление сортировки
 if (!empty($params->sortDir)){
-	$ddMenuBuilder_params['sortDir'] = $params->sortDir;
+	$ddMenuBuilder_params->sortDir = $params->sortDir;
 }
 //По умолчанию будут только опубликованные документы
 if (!empty($params->showPublishedOnly)){
-	$ddMenuBuilder_params['showPublishedOnly'] = $params->showPublishedOnly;
+	$ddMenuBuilder_params->showPublishedOnly = $params->showPublishedOnly;
 }
 //По умолчанию будут только документы, у которых стоит галочка «показывать в меню»
 if (!empty($params->showInMenuOnly)){
-	$ddMenuBuilder_params['showInMenuOnly'] = $params->showInMenuOnly;
+	$ddMenuBuilder_params->showInMenuOnly = $params->showInMenuOnly;
 }
 
 $ddMenuBuilder = new ddMenuBuilder($ddMenuBuilder_params);
