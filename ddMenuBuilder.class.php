@@ -1,13 +1,13 @@
 <?php
 /**
  * modx ddMenuBuilder class
- * @version 4.2.1 (2021-03-09)
+ * @version 4.3 (2023-05-05)
  * 
  * @uses PHP >= 5.6.
- * @uses (MODX)EvolutionCMS >= 1.1 {@link https://github.com/evolution-cms/evolution }
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.24.1 {@link http://code.divandesign.ru/modx/ddtools }
+ * @uses (MODX)EvolutionCMS >= 1.1
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.59
  * 
- * @copyright 2009–2021 Ronef {@link https://Ronef.ru }
+ * @copyright 2009–2023 Ronef {@link https://Ronef.ru }
  */
 
 class ddMenuBuilder {
@@ -49,21 +49,21 @@ class ddMenuBuilder {
 	
 	/**
 	 * __construct
-	 * @version 1.8 (2020-03-03)
+	 * @version 1.9 (2023-05-05)
 	 * 
 	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
 	 * @param $params->showInMenuOnly {boolean} — Брать ли только те документы, что надо показывать в меню. Default: true.
 	 * @param $params->sortDir {'ASC'|'DESC'} — Направление сортировки. Default: 'ASC'.
-	 * @param $params->templates {array} — Шаблоны элементов меню. Default: $this->templates.
-	 * @param $params->templates['item'] {array} — Шаблон элемента. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
-	 * @param $params->templates['itemHere'] {array} — Шаблон текущего элемента (когда находимся на этой странице). Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
-	 * @param $params->templates['itemActive'] {array} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates->itemHere.
-	 * @param $params->templates['itemParent'] {array} — Шаблон элемента-родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
-	 * @param $params->templates['itemParentHere'] {array} — Шаблон активного элемента-родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
-	 * @param $params->templates['itemParentActive'] {array} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates->itemParentHere.
-	 * @param $params->templates['itemParentUnpub'] {array} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates->itemParent.
-	 * @param $params->templates['itemParentUnpubActive'] {array} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates->itemParentActive.
+	 * @param $params->templates {arrayAssociative|stdClass} — Шаблоны элементов меню. Default: $this->templates.
+	 * @param $params->templates->item {string} — Шаблон элемента. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+	 * @param $params->templates->itemHere {string} — Шаблон текущего элемента (когда находимся на этой странице). Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a></li>'.
+	 * @param $params->templates->itemActive {string} — Шаблон элемента, если один из его дочерних документов here, но при этом не отображается в меню (из-за глубины, например). Default: $this->templates->itemHere.
+	 * @param $params->templates->itemParent {string} — Шаблон элемента-родителя. Default: '<li><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+	 * @param $params->templates->itemParentHere {string} — Шаблон активного элемента-родителя. Default: '<li class="active"><a href="[~[+id+]~]" title="[+pagetitle+]">[+menutitle+]</a><ul>[+children+]</ul></li>'.
+	 * @param $params->templates->itemParentActive {string} — Шаблон элемента-родителя, когда дочерний является here. Default: $this->templates->itemParentHere.
+	 * @param $params->templates->itemParentUnpub {string} — Шаблон элемента-родителя, если он не опубликован. Default: $this->templates->itemParent.
+	 * @param $params->templates->itemParentUnpubActive {string} — Шаблон элемента-родителя, если он не опубликован и дочерний является активным. Default: $this->templates->itemParentActive.
 	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
 	public function __construct($params = []){
@@ -75,17 +75,19 @@ class ddMenuBuilder {
 			'assets/libs/ddTools/modx.ddtools.class.php'
 		);
 		
-		//Defaults
-		$params = (object) array_merge(
-			[
-				'showPublishedOnly' => true,
-				'showInMenuOnly' => true,
-				'sortDir' => 'ASC',
-				'hereDocId' => \ddTools::$modx->documentIdentifier,
-				'templates' => []
-			],
-			(array) $params
-		);
+		$params = \DDTools\ObjectTools::extend([
+			'objects' => [
+				//Defaults
+				(object) [
+					'showPublishedOnly' => true,
+					'showInMenuOnly' => true,
+					'sortDir' => 'ASC',
+					'hereDocId' => \ddTools::$modx->documentIdentifier,
+					'templates' => [],
+				],
+				$params
+			]
+		]);
 		
 		$this->templates = (object) $this->templates;
 		
@@ -269,7 +271,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.3 (2020-03-03)
+	 * @version 0.3.1 (2023-05-05)
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -278,18 +280,16 @@ class ddMenuBuilder {
 	 * @return {stdClass}
 	 */
 	public function prepareProviderParams($params = []){
-		//Defaults
-		$params = (object) array_merge(
-			[
-				'provider' => 'parent',
-				'providerParams' => []
-			],
-			(array) $params
-		);
-		
-		if (is_array($params->providerParams)){
-			$params->providerParams = (object) $params->providerParams;
-		}
+		$params = \DDTools\ObjectTools::extend([
+			'objects' => [
+				//Defaults
+				(object) [
+					'provider' => 'parent',
+					'providerParams' => new \stdClass(),
+				],
+				$params
+			]
+		]);
 		
 		$result = (object) [
 			'where' => [],
@@ -323,14 +323,16 @@ class ddMenuBuilder {
 			
 			case 'parent':
 			default:
-				//Defaults
-				$params->providerParams = (object) array_merge(
-					[
-						'parentIds' => 0,
-						'depth' => 1
-					],
-					(array) $params->providerParams
-				);
+				$params->providerParams = \DDTools\ObjectTools::extend([
+					'objects' => [
+						//Defaults
+						(object) [
+							'parentIds' => 0,
+							'depth' => 1,
+						],
+						$params->providerParams
+					]
+				]);
 				
 				if (is_array($params->providerParams->parentIds)){
 					$params->providerParams->parentIds = implode(
@@ -353,7 +355,7 @@ class ddMenuBuilder {
 	
 	/**
 	 * generate
-	 * @version 4.0.1 (2020-03-03)
+	 * @version 4.0.2 (2023-05-05)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -370,15 +372,17 @@ class ddMenuBuilder {
 	 * @return $result->outputString {string}
 	 */
 	public function generate($params){
-		//Defaults
-		$params = (object) array_merge(
-			[
-				'depth' => 1,
-				//For internal using only, not recommended to pass it
-				'level' => 1
-			],
-			(array) $params
-		);
+		$params = \DDTools\ObjectTools::extend([
+			'objects' => [
+				//Defaults
+				(object) [
+					'depth' => 1,
+					//For internal using only, not recommended to pass it
+					'level' => 1,
+				],
+				$params
+			]
+		]);
 		
 		$result = (object) [
 			//Считаем, что активных пунктов по дефолту нет
