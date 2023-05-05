@@ -299,4 +299,4 @@ JSON syntax is more clear than Query string, but sometimes it's not convenient. 
 * [GitHub](https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder)
 
 
-<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
+<link rel="stylesheet" type="text/css" href="https://raw.githack.com/DivanDesign/CSS.ddMarkdown/master/style.min.css" />
