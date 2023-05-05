@@ -40,7 +40,7 @@ class Main {
 	
 	/**
 	 * __construct
-	 * @version 1.9 (2023-05-05)
+	 * @version 1.9.1 (2023-05-05)
 	 * 
 	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -58,14 +58,6 @@ class Main {
 	 * @param $params->hereDocId {integer} — ID текущего документа. Default: \ddTools::$modx->documentIdentifier.
 	 */
 	public function __construct($params = []){
-		global $modx;
-		
-		//Include (MODX)EvolutionCMS.libraries.ddTools
-		require_once(
-			$modx->getConfig('base_path') .
-			'assets/libs/ddTools/modx.ddtools.class.php'
-		);
-		
 		$params = \DDTools\ObjectTools::extend([
 			'objects' => [
 				//Defaults
