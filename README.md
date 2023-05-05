@@ -11,13 +11,10 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 * [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.24.1
 
 
-## Documentation
+## Installation
 
 
-### Installation
-
-
-#### 1. Elements → Snippets: Create a new snippet with the following data
+### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMenuBuilder`.
 2. Description: `<b>2.1.1</b> Simple and flexible template-driven menu builder.`.
@@ -26,16 +23,16 @@ Initially inspired by combination of the Wayfinder and Ditto advantages with sig
 5. Snippet code (php): Insert content of the `ddMenuBuilder_snippet.php` file from the archive.
 
 
-#### 2. Elements → Manage Files:
+### 2. Elements → Manage Files:
 
 1. Create a new folder `assets/snippets/ddMenuBuilder/`.
 2. Extract the archive to the folder (except `ddMenuBuilder_snippet.php`).
 
 
-### Parameters description
+## Parameters description
 
 
-#### Data provider parameters
+### Data provider parameters
 
 Providers get documents data to output.
 
@@ -54,7 +51,7 @@ Providers get documents data to output.
 	* Default value: —
 
 
-##### Providers → Parent (``&provider=`parent` ``)
+#### Providers → Parent (``&provider=`parent` ``)
 
 Select children documents from required parent(s).
 
@@ -76,7 +73,7 @@ Select children documents from required parent(s).
 	* Default value: `1`
 
 
-##### Providers → Select (``&provider=`select` ``)
+#### Providers → Select (``&provider=`select` ``)
 
 Just output selected documents.
 
@@ -93,7 +90,7 @@ Just output selected documents.
 	* **Required**
 
 
-#### General parameters
+### General parameters
 
 * `sortDir`
 	* Desctription: The sorting direction (by `menuindex` field).
@@ -117,7 +114,7 @@ Just output selected documents.
 	* Default value: `1`
 
 
-#### Template parameters
+### Template parameters
 
 * `templates`
 	* Desctription: Templates.  
@@ -136,7 +133,7 @@ Just output selected documents.
 	* Default value: —
 
 
-##### Item templates
+#### Item templates
 
 * `templates->item`
 	* Desctription: The menu item template.
@@ -174,7 +171,7 @@ Just output selected documents.
 	* Default value: = `templates->itemActive`
 
 
-##### Parent item templates
+#### Parent item templates
 
 * `templates->itemParent`
 	* Desctription: The menu item template for documents which has a children displayed in menu.
@@ -212,7 +209,7 @@ Just output selected documents.
 	* Default value: = `templates->itemParentActive`
 
 
-##### Outer template
+#### Outer template
 
 * `templates->outer`
 	* Desctription: Wrapper template.  
@@ -233,10 +230,10 @@ Just output selected documents.
 	* Default value: —
 
 
-### Examples
+## Examples
 
 
-#### Providers → Parent
+### Providers → Parent
 
 ```html
 [[ddMenuBuilder?
@@ -249,7 +246,7 @@ Just output selected documents.
 ```
 
 
-#### Providers → Select
+### Providers → Select
 
 ```html
 [[ddMenuBuilder?
@@ -265,7 +262,7 @@ Just output selected documents.
 ```
 
 
-#### Pass additional data into outer chunk (the `placeholders` parameter)
+### Pass additional data into outer chunk (the `placeholders` parameter)
 
 ```html
 [[ddMenuBuilder?
@@ -280,7 +277,7 @@ Just output selected documents.
 ```
 
 
-#### Using Query string instead of JSON
+### Using Query string instead of JSON
 
 JSON syntax is more clear than Query string, but sometimes it's not convenient. For example, if you want to pass JSON string as string.
 
