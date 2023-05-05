@@ -47,7 +47,7 @@
 	* Описание: Параметры провайдера.
 	* Допустимые значения:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 	* Значение по умолчанию: —
 
 
@@ -129,7 +129,7 @@
 		* `[+level+]`
 	* Допустимые значения:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 	* Значение по умолчанию: —
 
 
@@ -226,7 +226,7 @@
 		Массивы также поддерживаются: `some[a]=one&some[b]=two` => `[+some.a+]`, `[+some.b+]`; `some[]=one&some[]=two` => `[+some.0+]`, `[some.1]`.
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) объекта
-		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 	* Значение по умолчанию: —
 
 
