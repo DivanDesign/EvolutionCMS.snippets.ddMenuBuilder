@@ -303,6 +303,27 @@
 ```
 
 
+### Запустить сниппет через `\DDTools\Snippet::runSnippet` без DB и eval
+
+```php
+//Подключение (MODX)EvolutionCMS.libraries.ddTools
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
+
+//Запуск (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMenuBuilder',
+	'params' => [
+		'providerParams' => [
+			'parentId' => 1
+		]
+	]
+]);
+```
+
+
 ## Ссылки
 * [Home page](http://code.divandesign.ru/modx/ddmenubuilder)
 * [Telegram chat](https://t.me/dd_code)

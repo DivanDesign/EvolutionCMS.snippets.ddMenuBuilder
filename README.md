@@ -303,6 +303,27 @@ JSON syntax is more clear than Query string, but sometimes it's not convenient. 
 ```
 
 
+### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
+
+```php
+//Include (MODX)EvolutionCMS.libraries.ddTools
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
+
+//Run (MODX)EvolutionCMS.snippets.ddMenuBuilder
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMenuBuilder',
+	'params' => [
+		'providerParams' => [
+			'parentId' => 1
+		]
+	]
+]);
+```
+
+
 ## Links
 
 * [Home page](http://code.divandesign.ru/modx/ddmenubuilder)

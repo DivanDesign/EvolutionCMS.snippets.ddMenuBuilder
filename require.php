@@ -10,4 +10,5 @@ require_once(
 );
 
 require_once('src/Main.php');
+require_once('src/Snippet.php');
 ?>
