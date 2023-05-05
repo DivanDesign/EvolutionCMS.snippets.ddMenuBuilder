@@ -15,6 +15,28 @@
 		"navigation",
 		"menu"
 	],
+	"homepage": "https://code.divandesign.ru/modx/ddmenubuilder",
+	"support": {
+		"chat": "https://t.me/dd_code"
+	},
+	"authors": [
+		{
+			"name": "Ilyas Ronef",
+			"email": "ilyas@DivanDesign.ru",
+			"homepage": "https://ronef.ru",
+			"role": "Owner"
+		},
+		{
+			"name": "Alexey Davydov",
+			"homepage": "https://github.com/davalemic",
+			"role": "Developer"
+		},
+		{
+			"name": "Vladislav Lavrov",
+			"homepage": "https://github.com/Tornek",
+			"role": "Developer"
+		}
+	],
 	"require": {
 		"php": ">=5.6.0",
 		"dd/modxevo-library-ddtools": ">=0.24.1"
