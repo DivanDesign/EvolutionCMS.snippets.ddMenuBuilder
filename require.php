@@ -9,5 +9,5 @@ require_once(
 	'/libs/ddTools/modx.ddtools.class.php'
 );
 
-require_once('ddMenuBuilder.class.php');
+require_once('src/Main.php');
 ?>
