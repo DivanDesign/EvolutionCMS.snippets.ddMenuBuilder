@@ -291,7 +291,9 @@ JSON syntax is more clear than Query string, but sometimes it's not convenient. 
 ```
 
 
-## [Home page →](http://code.divandesign.biz/modx/ddmenubuilder)
+## Links
+
+* [Home page](http://code.divandesign.ru/modx/ddmenubuilder)
 
 
 <link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
