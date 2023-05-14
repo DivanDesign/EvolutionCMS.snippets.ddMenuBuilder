@@ -40,7 +40,7 @@ class Main {
 	
 	/**
 	 * __construct
-	 * @version 1.9.1 (2023-05-05)
+	 * @version 1.9.2 (2023-05-14)
 	 * 
 	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -87,7 +87,7 @@ class Main {
 					$this->templates,
 					$templateName
 				)){
-					$this->templates->{$templateName} = \ddTools::$modx->getTpl($templateContent);
+					$this->templates->{$templateName} = \ddTools::getTpl($templateContent);
 				}
 			}
 		}
