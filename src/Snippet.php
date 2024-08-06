@@ -44,7 +44,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.0 (2023-05-05)
+	 * @version 1.0.1 (2024-05-15)
 	 * 
 	 * @return {string}
 	 */
@@ -58,11 +58,11 @@ class Snippet extends \DDTools\Snippet {
 			$ddMenuBuilder_params->sortDir = $this->params->sortDir;
 		}
 		//По умолчанию будут только опубликованные документы
-		if (!empty($this->params->showPublishedOnly)){
+		if (!is_null($this->params->showPublishedOnly)){
 			$ddMenuBuilder_params->showPublishedOnly = $this->params->showPublishedOnly;
 		}
 		//По умолчанию будут только документы, у которых стоит галочка «показывать в меню»
-		if (!empty($this->params->showInMenuOnly)){
+		if (!is_null($this->params->showInMenuOnly)){
 			$ddMenuBuilder_params->showInMenuOnly = $this->params->showInMenuOnly;
 		}
 		
