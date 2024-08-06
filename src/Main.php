@@ -40,7 +40,7 @@ class Main {
 	
 	/**
 	 * __construct
-	 * @version 1.9.2 (2023-05-14)
+	 * @version 1.9.3 (2024-08-06)
 	 * 
 	 * @param $params {arrayAssociative|stdClass} — The object of params.
 	 * @param $params->showPublishedOnly {boolean} — Брать ли только опубликованные документы. Default: true.
@@ -60,7 +60,7 @@ class Main {
 	public function __construct($params = []){
 		$params = \DDTools\ObjectTools::extend([
 			'objects' => [
-				//Defaults
+				// Defaults
 				(object) [
 					'showPublishedOnly' => true,
 					'showInMenuOnly' => true,
@@ -74,15 +74,15 @@ class Main {
 		
 		$this->templates = (object) $this->templates;
 		
-		//Если шаблоны переданы
+		// Если шаблоны переданы
 		if (!empty($params->templates)){
-			//Перебираем шаблоны объекта
+			// Перебираем шаблоны объекта
 			foreach (
 				$params->templates as
 				$templateName =>
 				$templateContent
 			){
-				//Если шаблон передан — сохраняем
+				// Если шаблон передан — сохраняем
 				if (property_exists(
 					$this->templates,
 					$templateName
@@ -94,12 +94,12 @@ class Main {
 		
 		unset($params->templates);
 		
-		//Все параметры задают свойства объекта
+		// Все параметры задают свойства объекта
 		foreach (
 			$params as
 			$paramName => $paramValue
 		){
-			//На всякий случай проверяем
+			// На всякий случай проверяем
 			if (property_exists(
 				$this,
 				$paramName
@@ -108,46 +108,46 @@ class Main {
 			}
 		}
 		
-		//Шаблон активного элемента по умолчанию равен шаблону текущего элемента
+		// Шаблон активного элемента по умолчанию равен шаблону текущего элемента
 		if (is_null($this->templates->itemActive)){
 			$this->templates->itemActive = $this->templates->itemHere;
 		}
-		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		// Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
 		if (is_null($this->templates->itemUnpub)){
 			$this->templates->itemUnpub = $this->templates->item;
 		}
 		
-		//Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
+		// Шаблон неопубликованного элемента по умолчанию равен шаблону элемента
 		if (is_null($this->templates->itemUnpubActive)){
 			$this->templates->itemUnpubActive = $this->templates->itemActive;
 		}
 		
-		//Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
+		// Шаблон активного элемента-родителя по умолчанию равен шаблону текущего элемента-родителя
 		if (is_null($this->templates->itemParentActive)){
 			$this->templates->itemParentActive = $this->templates->itemParentHere;
 		}
 		
-		//Шаблон неопубликованного элемента-родителя по умолчанию равен шаблону элемента-родителя
+		// Шаблон неопубликованного элемента-родителя по умолчанию равен шаблону элемента-родителя
 		if (is_null($this->templates->itemParentUnpub)){
 			$this->templates->itemParentUnpub = $this->templates->itemParent;
 		}
 		
-		//Шаблон неопубликованного активного элемента-родителя по умолчанию равен шаблону активного элемента-родителя
+		// Шаблон неопубликованного активного элемента-родителя по умолчанию равен шаблону активного элемента-родителя
 		if (is_null($this->templates->itemParentUnpubActive)){
 			$this->templates->itemParentUnpubActive = $this->templates->itemParentActive;
 		}
 		
-		//Валидация типов
+		// Валидация типов
 		$this->sortDir = strtoupper($this->sortDir);
 		$this->showPublishedOnly = boolval($this->showPublishedOnly);
 		$this->showInMenuOnly = boolval($this->showInMenuOnly);
 		
-		//По умолчанию берем только опубликованные документы
+		// По умолчанию берем только опубликованные документы
 		if ($this->showPublishedOnly){
 			$this->where['published'] = '`published` = 1';
 		}
 		
-		//По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
+		// По умолчанию смотрим только документы, у которых стоит галочка «показывать в меню»
 		if ($this->showInMenuOnly){
 			$this->where['hidemenu'] = '`hidemenu` = 0';
 		}
@@ -155,7 +155,7 @@ class Main {
 	
 	/**
 	 * getOutputTemplate
-	 * @version 1.3.2 (2021-03-09)
+	 * @version 1.3.3 (2024-08-06)
 	 * 
 	 * @desc Подбирает необходимый шаблон для вывода документа.
 	 * 
@@ -173,76 +173,76 @@ class Main {
 		
 		$result = '';
 		
-		//Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
+		// Если у документа будут выводиться дочерние, значит надо использовать какой-то родительский шаблон
 		if ($params->hasChildrenOutput){
-			//Если опубликован, значит надо использовать какой-то опубликованный шаблон
+			// Если опубликован, значит надо использовать какой-то опубликованный шаблон
 			if ($params->docPublished){
-				//Если текущий пункт является активным
+				// Если текущий пункт является активным
 				if ($params->docId == $this->hereDocId){
-					//Шаблон активного родительского пункта меню
+					// Шаблон активного родительского пункта меню
 					$result = $this->templates->itemParentHere;
-				//Если не не активный
+				// Если не не активный
 				}else{
-					//Если один из дочерних был активным
+					// Если один из дочерних был активным
 					if ($params->hasActiveChildren){
-						//Сообщаем, что что-то активное есть
-						//Шаблон родительского пункта меню, когда активный один из дочерних
+						// Сообщаем, что что-то активное есть
+						// Шаблон родительского пункта меню, когда активный один из дочерних
 						$result = $this->templates->itemParentActive;
-					//Если активных дочерних не было
+					// Если активных дочерних не было
 					}else{
-						//Шаблон родительского пункта меню
+						// Шаблон родительского пункта меню
 						$result = $this->templates->itemParent;
 					}
 				}
-			//Если не опубликован
+			// Если не опубликован
 			}else{
-				//Если один из дочерних был активным
+				// Если один из дочерних был активным
 				if ($params->hasActiveChildren){
-					//Сообщаем, что что-то активное есть
-					//Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
+					// Сообщаем, что что-то активное есть
+					// Шаблон неопубликованного родительского пункта меню, когда активный один из дочерних
 					$result = $this->templates->itemParentUnpubActive;
-				//Если активных дочерних не было
+				// Если активных дочерних не было
 				}else{
-					//Шаблон неопубликованного родительского пункта меню
+					// Шаблон неопубликованного родительского пункта меню
 					$result = $this->templates->itemParentUnpub;
 				}
 			}
-		//Если дочерних нет (отображаемых дочерних)
+		// Если дочерних нет (отображаемых дочерних)
 		}else{
 			if (
 				(
-					//Либо документ должен отображаться в меню
+					// Либо документ должен отображаться в меню
 					$params->docShowedInMenu ||
-					//Либо отображение в меню вообще не важно
+					// Либо отображение в меню вообще не важно
 					!$this->showInMenuOnly
 				) &&
 				(
-					//Либо документ опубликован
+					// Либо документ опубликован
 					$params->docPublished ||
-					//Либо публикация вообще не важна
+					// Либо публикация вообще не важна
 					!$this->showPublishedOnly
 				)
 			){
-				//Если опубликован, значит надо использовать какой-то опубликованный шаблон
+				// Если опубликован, значит надо использовать какой-то опубликованный шаблон
 				if ($params->docPublished){
-					//Если текущий пункт является активным
+					// Если текущий пункт является активным
 					if ($params->docId == $this->hereDocId){
-						//Шаблон активного пункта
+						// Шаблон активного пункта
 						$result = $this->templates->itemHere;
-					//Если активен какой-то из дочерних, не участвующих в визуальном отображении
+					// Если активен какой-то из дочерних, не участвующих в визуальном отображении
 					}elseif($params->hasActiveChildren){
 						$result = $this->templates->itemActive;
-					//Если не не активный
+					// Если не не активный
 					}else{
-						//Шаблон пункта меню
+						// Шаблон пункта меню
 						$result = $this->templates->item;
 					}
 				}else{
-					//Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
+					// Если активен какой-то из дочерних, не участвующих в визуальном отображении (он не может быть «here», потому что неопубликован)
 					if ($params->hasActiveChildren){
 						$result = $this->templates->itemUnpubActive;
 					}else{
-						//Шаблон неопубликованного пункта меню
+						// Шаблон неопубликованного пункта меню
 						$result = $this->templates->itemUnpub;
 					}
 				}
@@ -254,7 +254,7 @@ class Main {
 	
 	/**
 	 * prepareProviderParams
-	 * @version 0.3.1 (2023-05-05)
+	 * @version 0.3.2 (2024-08-06)
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — The object of params. @required
 	 * @param $params->provider {'parent'|'select'} — Name of the provider that will be used to fetch documents. Default: 'parent'.
@@ -265,7 +265,7 @@ class Main {
 	public function prepareProviderParams($params = []){
 		$params = \DDTools\ObjectTools::extend([
 			'objects' => [
-				//Defaults
+				// Defaults
 				(object) [
 					'provider' => 'parent',
 					'providerParams' => new \stdClass(),
@@ -281,7 +281,7 @@ class Main {
 		
 		switch ($params->provider){
 			case 'select':
-				//Required paremeter
+				// Required paremeter
 				if (
 					isset($params->providerParams->ids) &&
 					!empty($params->providerParams->ids)
@@ -299,7 +299,7 @@ class Main {
 						')'
 					;
 				}else{
-					//Never
+					// Never
 					$result->where[] = '0 = 1';
 				}
 			break;
@@ -308,7 +308,7 @@ class Main {
 			default:
 				$params->providerParams = \DDTools\ObjectTools::extend([
 					'objects' => [
-						//Defaults
+						// Defaults
 						(object) [
 							'parentIds' => 0,
 							'depth' => 1,
@@ -338,7 +338,7 @@ class Main {
 	
 	/**
 	 * generate
-	 * @version 4.0.3 (2023-05-05)
+	 * @version 4.0.4 (2024-08-06)
 	 * 
 	 * @desc Сторит меню.
 	 * 
@@ -357,10 +357,10 @@ class Main {
 	public function generate($params){
 		$params = \DDTools\ObjectTools::extend([
 			'objects' => [
-				//Defaults
+				// Defaults
 				(object) [
 					'depth' => 1,
-					//For internal using only, not recommended to pass it
+					// For internal using only, not recommended to pass it
 					'level' => 1,
 				],
 				$params
@@ -368,12 +368,12 @@ class Main {
 		]);
 		
 		$result = (object) [
-			//Считаем, что активных пунктов по дефолту нет
+			// Считаем, что активных пунктов по дефолту нет
 			'hasActive' => false,
-			//Как и вообще пунктов
+			// Как и вообще пунктов
 			'totalAll' => 0,
 			'totalThisLevel' => 0,
-			//Результирующая строка
+			// Результирующая строка
 			'outputString' => ''
 		];
 		
@@ -385,7 +385,7 @@ class Main {
 			)
 		);
 		
-		//Получаем все пункты одного уровня
+		// Получаем все пункты одного уровня
 		$dbRes = \ddTools::$modx->db->query('
 			SELECT
 				`id`,
@@ -402,81 +402,81 @@ class Main {
 				`menuindex` ' . $this->sortDir . '
 		');
 		
-		//Если что-то есть
+		// Если что-то есть
 		if (\ddTools::$modx->db->getRecordCount($dbRes) > 0){
-			//Проходимся по всем пунктам текущего уровня
+			// Проходимся по всем пунктам текущего уровня
 			while ($doc = \ddTools::$modx->db->getRow($dbRes)){
 				$doc = (object) $doc;
 				
-				//Пустые дети
+				// Пустые дети
 				$children = (object) [
 					'hasActive' => false,
 					'totalAll' => 0,
 					'outputString' => ''
 				];
-				//И для вывода тоже пустые
+				// И для вывода тоже пустые
 				$doc->children = $children;
-				//Количество отображаемых потомков всех уровней
+				// Количество отображаемых потомков всех уровней
 				$doc->totalAllChildren = 0;
-				//Количество отображаемых непосредственных потомков
+				// Количество отображаемых непосредственных потомков
 				$doc->totalThisLevelChildren = 0;
 				
-				//Если это папка (т.е., могут быть дочерние)
+				// Если это папка (т.е., могут быть дочерние)
 				if ($doc->isfolder){
-					//Получаем детей (вне зависимости от того, нужно ли их выводить)
+					// Получаем детей (вне зависимости от того, нужно ли их выводить)
 					$children = $this->generate([
 						'where' => [
 							'parent' =>
 								'`parent` = ' .
 								$doc->id
 							,
-							//Any hidemenu
+							// Any hidemenu
 							'hidemenu' => '`hidemenu` != 2'
 						],
 						'depth' => $params->depth - 1,
 						'level' => $params->level + 1
 					]);
 					
-					//Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
+					// Можно смело наращивать без условия, т. к. возвращается количество отображаемых детей
 					$result->totalAll += $children->totalAll;
 					
-					//Если надо выводить глубже
+					// Если надо выводить глубже
 					if ($params->depth > 1){
-						//Выводим детей
+						// Выводим детей
 						$doc->children = $children;
 						$doc->totalAllChildren = $children->totalAll;
 						$doc->totalThisLevelChildren = $children->totalThisLevel;
 					}
 				}
 				
-				//Если вывод вообще нужен (если «$params->depth» <= 0, значит этот вызов был только для выяснения активности)
+				// Если вывод вообще нужен (если «$params->depth» <= 0, значит этот вызов был только для выяснения активности)
 				if ($params->depth > 0){
-					//Получаем правильный шаблон для вывода текущеёго пункта
+					// Получаем правильный шаблон для вывода текущеёго пункта
 					$tpl = $this->getOutputTemplate([
 						'docId' => $doc->id,
 						'docPublished' => !!$doc->published,
-						//Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
+						// Требуется для определения, надо ли выводить текущий документ, т. к. выше в запросе получаются документы вне зависимости от отображения в меню
 						'docShowedInMenu' => !$doc->hidemenu,
 						'hasActiveChildren' => $children->hasActive,
 						'hasChildrenOutput' => $doc->children->outputString != ''
 					]);
 					
-					//Если шаблон определён (документ надо выводить)
+					// Если шаблон определён (документ надо выводить)
 					if ($tpl != ''){
-						//Пунктов меню становится больше
+						// Пунктов меню становится больше
 						$result->totalAll++;
 						$result->totalThisLevel++;
 						
-						//Если вдруг меню у документа не задано, выставим заголовок вместо него
+						// Если вдруг меню у документа не задано, выставим заголовок вместо него
 						if (trim($doc->menutitle) == ''){
 							$doc->menutitle = $doc->pagetitle;
 						}
 						
-						//Подготовим к парсингу
+						// Подготовим к парсингу
 						$doc->children = $doc->children->outputString;
 						$doc->level = $params->level;
 						
-						//Парсим
+						// Парсим
 						$result->outputString .= \ddTools::parseText([
 							'text' => $tpl,
 							'data' => $doc
@@ -484,7 +484,7 @@ class Main {
 					}
 				}
 				
-				//Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
+				// Если мы находимся на странице текущего документа или на странице одного из дочерних (не важно отображаются они или нет, т.е., не зависимо от глубины)
 				if (
 					$doc->id == $this->hereDocId ||
 					$children->hasActive

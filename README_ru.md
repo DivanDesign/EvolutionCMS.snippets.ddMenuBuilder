@@ -19,13 +19,13 @@
 Просто вызовите следующий код в своих исходинках или модуле [Console](https://github.com/vanchelo/MODX-Evolution-Ajax-Console):
 
 ```php
-//Подключение (MODX)EvolutionCMS.libraries.ddInstaller
+// Подключение (MODX)EvolutionCMS.libraries.ddInstaller
 require_once(
 	$modx->getConfig('base_path') .
 	'assets/libs/ddInstaller/require.php'
 );
 
-//Установка (MODX)EvolutionCMS.snippets.ddMenuBuilder
+// Установка (MODX)EvolutionCMS.snippets.ddMenuBuilder
 \DDInstaller::install([
 	'url' => 'https://github.com/DivanDesign/EvolutionCMS.snippets.ddMenuBuilder',
 	'type' => 'snippet'
@@ -336,13 +336,13 @@ require_once(
 ### Запустить сниппет через `\DDTools\Snippet::runSnippet` без DB и eval
 
 ```php
-//Подключение (MODX)EvolutionCMS.libraries.ddTools
+// Подключение (MODX)EvolutionCMS.libraries.ddTools
 require_once(
 	$modx->getConfig('base_path') .
 	'assets/libs/ddTools/modx.ddtools.class.php'
 );
 
-//Запуск (MODX)EvolutionCMS.snippets.ddMenuBuilder
+// Запуск (MODX)EvolutionCMS.snippets.ddMenuBuilder
 \DDTools\Snippet::runSnippet([
 	'name' => 'ddMenuBuilder',
 	'params' => [
